@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- BROSUR v2.4.2 -->
+<!-- BROSUR v2.4.3 -->
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
@@ -12,7 +12,7 @@
            kopya çalışır. Kurulum: dosyayı GitHub Pages'e yükle,
            aşağıdaki adresi güncelle, dosyayı yeniden dağıt.
            Kural korunur: yine tek dosya, yine çift tıkla açılır. */
-        var BROSUR_VERSION = "2.4.2";
+        var BROSUR_VERSION = "2.4.3";
         var BROSUR_URL = "https://emirhan0008.github.io/brosur/Brosur.html";
         (function () {
             if (window.__brosurBootDone) return;
@@ -621,7 +621,7 @@
     <!-- ============ KONTROL PANELİ ============ -->
     <div class="control-panel no-print">
         <h3>🎛️ Broşür Editörü Pro</h3>
-        <div class="ver-tag" id="verTag">v2.4.2</div>
+        <div class="ver-tag" id="verTag">v2.4.3</div>
 
         <div class="btn-row">
             <button class="btn btn-primary" onclick="window.print()" title="Yazdır">🖨️ Yazdır</button>
@@ -1565,14 +1565,20 @@
         }
 
         $('btnSave').addEventListener('click', () => {
-            localStorage.setItem(STORE_KEY, JSON.stringify(collectSettings()));
+            try {
+                localStorage.setItem(STORE_KEY, JSON.stringify(collectSettings()));
+            } catch (e) {
+                alert('Kaydedilemedi: tarayıcı saklama alanı dolu. Büyük görselleri azaltıp tekrar dene.');
+                return;
+            }
             pushArchive('Kaydet');
             alert('Kaydedildi ✓ Tarayıcıda saklandı. Arşive de kopya alındı.');
         });
         $('btnLoad').addEventListener('click', () => {
             const raw = localStorage.getItem(STORE_KEY);
             if (!raw){ alert('Kayıtlı tasarım bulunamadı.'); return; }
-            applySettings(JSON.parse(raw));
+            try { applySettings(JSON.parse(raw)); }
+            catch (e) { alert('Kayıtlı tasarım bozuk görünüyor. Sıfırla ile temizleyebilirsin.'); return; }
             alert('Yüklendi ✓');
         });
         $('btnReset').addEventListener('click', () => {
@@ -1584,10 +1590,13 @@
         try {
             const raw = localStorage.getItem(STORE_KEY) || localStorage.getItem('brosur-pro-v1');
             if (raw) applySettings(JSON.parse(raw));
-        } catch(e){}
+        } catch(e){ try { localStorage.removeItem(STORE_KEY); } catch (e2) {} }
 
         /* ---------- Güncelleme notları ---------- */
         var BROSUR_NOTES = {
+            "2.4.3": [
+                "Hata önlemleri: dolu saklama alanı ve bozuk kayıtlarda artık anlaşılır uyarı çıkıyor."
+            ],
             "2.4.2": [
                 "Açılıştaki teknik hata düzeltildi (Kaydet/Yükle ve Arşiv artık çalışıyor)."
             ],
@@ -1666,9 +1675,11 @@
                 try { localStorage.setItem(ARCHIVE_KEY, JSON.stringify(a)); } catch (e) {}
                 renderArchive();
             } else {
+                if (!it || !it.data || typeof it.data.html !== 'string'){ alert('Bu arşiv kopyası bozuk görünüyor, yüklenemedi.'); return; }
                 if (!confirm(it.date + " tarihli kopya yüklensin mi? Mevcut çalışman arşive alınır.")) return;
                 pushArchive("Geri yükleme öncesi");
-                applySettings(it.data);
+                try { applySettings(it.data); }
+                catch (e) { alert('Kopya yüklenirken hata oldu.'); }
             }
         });
 
