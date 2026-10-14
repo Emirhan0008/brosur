@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- BROSUR v2.4.0 -->
+<!-- BROSUR v2.4.1 -->
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
@@ -11,7 +11,7 @@
            kopya çalışır. Kurulum: dosyayı GitHub Pages'e yükle,
            aşağıdaki adresi güncelle, dosyayı yeniden dağıt.
            Kural korunur: yine tek dosya, yine çift tıkla açılır. */
-        var BROSUR_VERSION = "2.4.0";
+        var BROSUR_VERSION = "2.4.1";
         var BROSUR_URL = "https://emirhan0008.github.io/brosur/Brosur.html";
         (function () {
             if (window.__brosurBootDone) return;
@@ -620,7 +620,7 @@
     <!-- ============ KONTROL PANELİ ============ -->
     <div class="control-panel no-print">
         <h3>🎛️ Broşür Editörü Pro</h3>
-        <div class="ver-tag" id="verTag">v2.4.0 • sorarak güncellenir</div>
+        <div class="ver-tag" id="verTag">v2.4.1</div>
 
         <div class="btn-row">
             <button class="btn btn-primary" onclick="window.print()" title="Yazdır">🖨️ Yazdır</button>
@@ -859,12 +859,12 @@
             <!-- 1. SÜTUN: KAPAK -->
             <div class="column cover-column" id="coverColumn">
                 <div class="cover-top-area" id="coverTopArea">
-                    <div class="qr-container-top" id="qrSection">
+                    <div class="qr-container-top" id="qrSection" style="display:none">
                         <div class="qr-box-small" id="qrContainer" onclick="document.getElementById('qrInput').click()" title="QR Görseli Seç">
                             <span id="qrText">QR</span>
                         </div>
                     </div>
-                    <div class="dynamic-logo-box" id="logoContainer" onclick="document.getElementById('logoInput').click()" title="Logo değiştirmek için tıkla">
+                    <div class="dynamic-logo-box" id="logoContainer" style="display:none" onclick="document.getElementById('logoInput').click()" title="Logo değiştirmek için tıkla">
                         <span class="dynamic-logo-text" id="logoText">+ Logo Ekle</span>
                     </div>
                     <div class="cover-title" id="displayCoverTitle" contenteditable="true">Sınav Stresiyle Baş Etme Rehberi</div>
@@ -1175,15 +1175,21 @@
         function updateLogoElement(){
             if (!uploadedLogoSrc) return;
             const h = $('logoSizeRange').value;
+            $('logoContainer').style.display = '';
             $('logoContainer').innerHTML = `<img src="${uploadedLogoSrc}" alt="Logo" style="height:${h}px;">`;
+        }
+        let qrHasImage = false;
+        function refreshQrVisibility(){
+            const show = qrHasImage && $('toggleQr').checked;
+            $('qrSection').style.display = show ? 'block' : 'none';
         }
         $('qrInput').addEventListener('change', e => {
             const f = e.target.files[0]; if (!f) return;
             const r = new FileReader();
-            r.onload = ev => { $('qrContainer').innerHTML = `<img src="${ev.target.result}" alt="QR">`; };
+            r.onload = ev => { $('qrContainer').innerHTML = `<img src="${ev.target.result}" alt="QR">`; qrHasImage = true; refreshQrVisibility(); };
             r.readAsDataURL(f);
         });
-        $('toggleQr').addEventListener('change', e => $('qrSection').style.display = e.target.checked ? 'block' : 'none');
+        $('toggleQr').addEventListener('change', refreshQrVisibility);
 
         /* ---------- Metin girişleri ---------- */
         $('inputCoverTitle').addEventListener('input', e => $('displayCoverTitle').innerText = e.target.value);
@@ -1562,6 +1568,10 @@
 
         /* ---------- Güncelleme notları ---------- */
         var BROSUR_NOTES = {
+            "2.4.1": [
+                "Logo veya QR eklenmediyse kapaktaki alanlar boş bırakılıyor.",
+                "Sürüm rozeti sadeleşti."
+            ],
             "2.4.0": [
                 "Sol panel yenilendi: renkli modüller, ikonlu kısa başlıklar, daha kompakt görünüm."
             ],
@@ -1639,7 +1649,7 @@
             }
         });
 
-        try { $("verTag").innerText = "v" + BROSUR_VERSION + " • sorarak güncellenir"; } catch (e) {}
+        try { $("verTag").innerText = "v" + BROSUR_VERSION; } catch (e) {}
         $("newsOk").addEventListener("click", hideNotes);
         $("newsOverlay").addEventListener("click", function (e) { if (e.target === $("newsOverlay")) hideNotes(); });
         $("btnNews").addEventListener("click", showNotes);
