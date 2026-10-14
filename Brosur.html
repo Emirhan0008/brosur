@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<!-- BROSUR v2.4.1 -->
+<!-- BROSUR v2.4.2 -->
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" href="data:,">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script>
         /* ===== OTOMATİK GÜNCELLEME =====
@@ -11,7 +12,7 @@
            kopya çalışır. Kurulum: dosyayı GitHub Pages'e yükle,
            aşağıdaki adresi güncelle, dosyayı yeniden dağıt.
            Kural korunur: yine tek dosya, yine çift tıkla açılır. */
-        var BROSUR_VERSION = "2.4.1";
+        var BROSUR_VERSION = "2.4.2";
         var BROSUR_URL = "https://emirhan0008.github.io/brosur/Brosur.html";
         (function () {
             if (window.__brosurBootDone) return;
@@ -620,7 +621,7 @@
     <!-- ============ KONTROL PANELİ ============ -->
     <div class="control-panel no-print">
         <h3>🎛️ Broşür Editörü Pro</h3>
-        <div class="ver-tag" id="verTag">v2.4.1</div>
+        <div class="ver-tag" id="verTag">v2.4.2</div>
 
         <div class="btn-row">
             <button class="btn btn-primary" onclick="window.print()" title="Yazdır">🖨️ Yazdır</button>
@@ -998,6 +999,25 @@
                     <div style="font-size: 8pt; color: var(--text-light); font-weight: 500;" id="displayFooterMsg" contenteditable="true">Başarılar Dileriz! 🌟</div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Güncelleme notları (yeni sürümde otomatik açılır) -->
+    <div class="news-overlay no-print" id="newsOverlay">
+        <div class="news-card">
+            <h4>🎉 Broşür güncellendi<span class="news-ver" id="newsVer"></span></h4>
+            <ul id="newsList"></ul>
+            <button class="btn btn-primary" id="newsOk">Tamam, anladım</button>
+        </div>
+    </div>
+
+    <!-- İkon seçici: listedeki SVG = bloğa uygulanan SVG (birebir aynı kaynak) -->
+    <div class="icon-picker no-print" id="iconPicker">
+        <h5>Başlık ikonu seç</h5>
+        <div class="icon-grid" id="iconGrid"></div>
+        <div class="icon-picker-foot">
+            <button type="button" id="iconClear">✕ İkonsuz</button>
+            <button type="button" id="iconCustomBtn">⬆ Özel yükle…</button>
         </div>
     </div>
 
@@ -1568,6 +1588,9 @@
 
         /* ---------- Güncelleme notları ---------- */
         var BROSUR_NOTES = {
+            "2.4.2": [
+                "Açılıştaki teknik hata düzeltildi (Kaydet/Yükle ve Arşiv artık çalışıyor)."
+            ],
             "2.4.1": [
                 "Logo veya QR eklenmediyse kapaktaki alanlar boş bırakılıyor.",
                 "Sürüm rozeti sadeleşti."
@@ -1670,25 +1693,6 @@
         setVar('--icon-color', $('cIconColor').value);
         setVar('--icon-size', $('rIconSize').value + 'px');
     </script>
-
-    <!-- Güncelleme notları (yeni sürümde otomatik açılır) -->
-    <div class="news-overlay no-print" id="newsOverlay">
-        <div class="news-card">
-            <h4>🎉 Broşür güncellendi<span class="news-ver" id="newsVer"></span></h4>
-            <ul id="newsList"></ul>
-            <button class="btn btn-primary" id="newsOk">Tamam, anladım</button>
-        </div>
-    </div>
-
-    <!-- İkon seçici: listedeki SVG = bloğa uygulanan SVG (birebir aynı kaynak) -->
-    <div class="icon-picker no-print" id="iconPicker">
-        <h5>Başlık ikonu seç</h5>
-        <div class="icon-grid" id="iconGrid"></div>
-        <div class="icon-picker-foot">
-            <button type="button" id="iconClear">✕ İkonsuz</button>
-            <button type="button" id="iconCustomBtn">⬆ Özel yükle…</button>
-        </div>
-    </div>
 
 </body>
 </html>
