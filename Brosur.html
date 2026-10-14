@@ -1,0 +1,1632 @@
+<!DOCTYPE html>
+<!-- BROSUR v2.3.0 -->
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        /* ===== OTOMATİK GÜNCELLEME =====
+           Bu dosya her açılışta internet varsa BROSUR_URL adresindeki
+           en güncel kopyayı sessizce yükler. İnternet yoksa gömülü
+           kopya çalışır. Kurulum: dosyayı GitHub Pages'e yükle,
+           aşağıdaki adresi güncelle, dosyayı yeniden dağıt.
+           Kural korunur: yine tek dosya, yine çift tıkla açılır. */
+        var BROSUR_VERSION = "2.3.0";
+        var BROSUR_URL = "https://KULLANICI-ADIN.github.io/brosur/brosur.html"; /* <-- BURAYI DEĞİŞTİR */
+        (function () {
+            if (window.__brosurBootDone) return;
+            window.__brosurBootDone = true;
+            var rootEl = document.documentElement;
+            function reveal() { try { rootEl.style.visibility = ""; } catch (e) {} }
+            setTimeout(reveal, 4000);
+            try {
+                if (BROSUR_URL.indexOf("KULLANICI-ADIN") !== -1) return;
+                var justUpdated = null;
+                try { justUpdated = sessionStorage.getItem("brosur-just-updated"); sessionStorage.removeItem("brosur-just-updated"); } catch (e) {}
+                if (justUpdated) return;
+                rootEl.style.visibility = "hidden";
+                function cmp(a, b) {
+                    var pa = String(a).split("."), pb = String(b).split(".");
+                    for (var i = 0; i < Math.max(pa.length, pb.length); i++) {
+                        var na = parseInt(pa[i] || "0", 10), nb = parseInt(pb[i] || "0", 10);
+                        if (na !== nb) return na > nb ? 1 : -1;
+                    }
+                    return 0;
+                }
+                function parseVer(t) { var m = t.match(/BROSUR_VERSION\s*=\s*["']([^"']+)["']/); return m ? m[1] : null; }
+                function looksOk(t) { return t.indexOf("brochureContainer") !== -1 && t.indexOf("BROSUR_VERSION") !== -1; }
+                function swap(html, ver) {
+                    try { sessionStorage.setItem("brosur-just-updated", ver); } catch (e) {}
+                    try { localStorage.setItem("brosur-updated-from", BROSUR_VERSION); } catch (e) {}
+                    try { document.open(); document.write(html); document.close(); } catch (e) { reveal(); }
+                }
+                function readCache() {
+                    try { return { ver: localStorage.getItem("brosur-cache-ver"), html: localStorage.getItem("brosur-cache-html") }; }
+                    catch (e) { return { ver: null, html: null }; }
+                }
+                var done = false;
+                function finish() { if (!done) { done = true; reveal(); } }
+                var timeout = new Promise(function (_, rej) { setTimeout(function () { rej(new Error("t")); }, 3500); });
+                Promise.race([fetch(BROSUR_URL, { cache: "no-store" }), timeout]).then(function (res) {
+                    if (!res || !res.ok) throw new Error("http");
+                    return res.text();
+                }).then(function (txt) {
+                    if (!looksOk(txt)) { finish(); return; }
+                    var rv = parseVer(txt) || "0";
+                    var cache = readCache();
+                    if (cmp(rv, cache.ver || "0") > 0) {
+                        try { localStorage.setItem("brosur-cache-ver", rv); localStorage.setItem("brosur-cache-html", txt); } catch (e) {}
+                    }
+                    if (cmp(rv, BROSUR_VERSION) > 0) { swap(txt, rv); }
+                    else { finish(); }
+                }).catch(function () {
+                    var cache = readCache();
+                    if (cache.ver && cache.html && cmp(cache.ver, BROSUR_VERSION) > 0 && looksOk(cache.html)) { swap(cache.html, cache.ver); }
+                    else { finish(); }
+                });
+            } catch (e) { reveal(); }
+        })();
+    </script>
+    <title>Sınav Stresiyle Baş Etme Rehberi - Gelişmiş Broşür Editörü</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Roboto:wght@400;500;700&family=Lora:ital,wght@0,500;0,600;1,500&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --primary-dark: #1e40af;
+            --accent: #2563eb;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --text-light: #64748b;
+            --page-bg: #ffffff;
+            --column-bg: #ffffff;
+            --card-bg: #ffffff;
+            --section-bg: #f8fafc;
+            --outer-border-color: #1e3a8a;
+            --card-radius: 6px;
+            --column-radius: 8px;
+            --title-size: 19pt;
+            --body-size: 8pt;
+            --column-gap: 6mm;
+            --page-padding: 8mm;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #1e293b;
+            color: var(--text-main);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+            font-size: var(--body-size);
+        }
+
+        /* ============ KONTROL PANELİ (kompakt) ============ */
+        .control-panel {
+            width: 312px;
+            min-width: 312px;
+            background: #ffffff;
+            border-right: 1px solid #e2e8f0;
+            padding: 14px 12px 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            box-shadow: 4px 0 25px rgba(0,0,0,0.3);
+            height: 100vh;
+            position: sticky;
+            top: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+            z-index: 100;
+            font-size: 8pt;
+        }
+
+        .control-panel h3 {
+            font-size: 10pt;
+            color: #0f172a;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 8px;
+            margin-bottom: 2px;
+            line-height: 1.3;
+        }
+
+        .panel-section {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #fff;
+            flex-shrink: 0;
+        }
+
+        .panel-section > summary {
+            cursor: pointer;
+            padding: 8px 10px;
+            font-size: 8.5pt;
+            font-weight: 700;
+            color: #0f172a;
+            background: #f1f5f9;
+            list-style: none;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            user-select: none;
+            line-height: 1.3;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .panel-section > summary::-webkit-details-marker { display: none; }
+        .panel-section > summary::before { content: '▸'; color: #2563eb; font-weight: bold; transition: transform .2s; flex-shrink: 0; }
+        .panel-section[open] > summary::before { transform: rotate(90deg); }
+        .panel-section .section-body { padding: 8px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+
+        .control-panel label {
+            font-weight: 500;
+            color: #334155;
+            font-size: 7.5pt;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            min-width: 0;
+            line-height: 1.35;
+        }
+        .label-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+        .label-row label { min-width: 0; }
+
+        .control-panel input[type="file"],
+        .control-panel input[type="text"],
+        .control-panel textarea,
+        .control-panel select {
+            padding: 6px 8px;
+            font-size: 8pt;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-family: 'Poppins', sans-serif;
+            background: #ffffff;
+            color: #0f172a;
+            transition: all 0.2s ease;
+            width: 100%;
+            min-width: 0;
+            line-height: 1.35;
+        }
+        .control-panel textarea { resize: vertical; min-height: 44px; }
+        .control-panel input[type="text"]:focus,
+        .control-panel textarea:focus,
+        .control-panel select:focus {
+            border-color: #2563eb;
+            outline: none;
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+        }
+        .color-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+        .control-panel input[type="color"] {
+            width: 100%; height: 28px;
+            border: 1px solid #cbd5e1; border-radius: 6px;
+            background: #ffffff; cursor: pointer; padding: 2px;
+        }
+        .control-panel input[type="range"] { cursor: pointer; width: 100%; accent-color: #2563eb; }
+        .range-label { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+        .range-label b { color: #0f172a; background: #e0e7ff; padding: 1px 7px; border-radius: 10px; font-size: 7.5pt; white-space: nowrap; flex-shrink: 0; }
+
+        /* Toggle / checkbox satırları: zemin-metin kontrastı sabit, hizalı */
+        .checkbox-label {
+            flex-direction: row !important;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 7.5pt;
+            color: #0f172a !important;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 6px 8px;
+            line-height: 1.35;
+            width: 100%;
+        }
+        .checkbox-label:hover { background: #eef2ff; border-color: #c7d2fe; }
+        .checkbox-label input {
+            width: 15px; height: 15px; min-width: 15px; min-height: 15px;
+            accent-color: #2563eb; cursor: pointer; margin: 0; flex-shrink: 0;
+        }
+        .checkbox-label span { flex: 1; min-width: 0; }
+
+        .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+        .btn {
+            padding: 7px 8px; border: none; border-radius: 6px;
+            font-family: 'Poppins', sans-serif; font-size: 8pt; font-weight: 600;
+            cursor: pointer; transition: all .2s;
+            display: flex; align-items: center; justify-content: center; gap: 5px;
+            line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .btn-primary { background: #2563eb; color: #fff; }
+        .btn-primary:hover { background: #1d4ed8; }
+        .btn-dark { background: #0f172a; color: #fff; }
+        .btn-dark:hover { background: #1e293b; }
+        .btn-light { background: #f1f5f9; color: #0f172a; border: 1px solid #cbd5e1; }
+        .btn-light:hover { background: #e2e8f0; }
+        .btn-danger { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+        .btn-danger:hover { background: #fee2e2; }
+        .btn-success { background: #059669; color: #fff; }
+        .btn-success:hover { background: #047857; }
+        .btn-full { grid-column: 1 / -1; }
+
+        .hint {
+            font-size: 7pt; color: #334155; line-height: 1.5;
+            background: #f8fafc; border: 1px dashed #cbd5e1;
+            padding: 6px 8px; border-radius: 6px;
+        }
+        .hint b { color: #0f172a; }
+        .ver-tag { font-size: 7pt; color: #475569; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 4px 8px; line-height: 1.4; }
+
+        /* Güncelleme notları penceresi */
+        .news-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15,23,42,.55); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 16px; }
+        .news-overlay.open { display: flex; }
+        .news-card { background: #fff; border-radius: 12px; max-width: 380px; width: 100%; padding: 18px; box-shadow: 0 20px 50px rgba(0,0,0,.35); font-family: 'Poppins',sans-serif; }
+        .news-card h4 { font-size: 11pt; color: #0f172a; margin-bottom: 4px; }
+        .news-card .news-ver { font-size: 7.5pt; color: #fff; background: #2563eb; border-radius: 10px; padding: 1px 8px; margin-left: 6px; vertical-align: 2px; }
+        .news-card ul { margin: 10px 0 14px 18px; font-size: 8.5pt; color: #334155; line-height: 1.6; }
+        .news-card .btn { width: 100%; }
+
+        /* Arşiv listesi */
+        .arc-row { display: flex; align-items: center; gap: 6px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 5px 7px; font-size: 7.5pt; color: #0f172a; line-height: 1.3; }
+        .arc-row span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .arc-row button { flex-shrink: 0; border: 1px solid #cbd5e1; background: #fff; border-radius: 5px; font-size: 7pt; font-weight: 600; padding: 3px 7px; cursor: pointer; font-family: 'Poppins',sans-serif; color: #0f172a; }
+        .arc-row button:hover { background: #eef2ff; border-color: #93c5fd; }
+
+        /* ============ ANA İÇERİK ============ */
+        .main-content { flex: 1; display: flex; justify-content: center; align-items: flex-start; padding: 30px; overflow: auto; }
+
+        @page { size: A4 landscape; margin: 0; }
+
+        .brochure-page {
+            width: 297mm; height: 210mm; min-width: 297mm; min-height: 210mm;
+            background: var(--page-bg);
+            padding: var(--page-padding);
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--column-gap);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Dış çerçeveler */
+        .brochure-page.outer-none { border: none !important; }
+        .brochure-page.outer-classic { border: 4px solid var(--outer-border-color); }
+        .brochure-page.outer-nakisli { border: 6px double var(--outer-border-color); outline: 2px solid var(--outer-border-color); outline-offset: -10px; }
+        .brochure-page.outer-vintage { border: 3px solid var(--outer-border-color); box-shadow: inset 0 0 0 3px #fff, inset 0 0 0 6px var(--outer-border-color); }
+        .brochure-page.outer-bold { border: 8px solid var(--outer-border-color); }
+        .brochure-page.outer-dashed { border: 3px dashed var(--outer-border-color); outline: 1px solid var(--outer-border-color); outline-offset: -7px; }
+        .brochure-page.outer-rounded { border: 3px solid var(--outer-border-color); border-radius: 18px; }
+
+        /* Köşe süsleri */
+        .corner-ornament {
+            position: absolute; font-size: 18pt; color: var(--outer-border-color);
+            opacity: .55; pointer-events: none; line-height: 1; z-index: 5;
+        }
+        .corner-tl { top: 3mm; left: 4mm; }
+        .corner-tr { top: 3mm; right: 4mm; }
+        .corner-bl { bottom: 3mm; left: 4mm; }
+        .corner-br { bottom: 3mm; right: 4mm; }
+
+        /* Üst şerit */
+        .top-ribbon {
+            position: absolute; top: 0; left: 0; right: 0; height: 5mm;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            z-index: 4;
+        }
+
+        /* Sütun */
+        .column {
+            background: var(--column-bg);
+            border-radius: var(--column-radius);
+            padding: 9mm 7mm;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+            position: relative;
+            overflow: visible;
+        }
+        .brochure-page.inner-classic .column { border: 1px solid #cbd5e1; }
+        .brochure-page.inner-modern .column { border: 2px solid var(--accent); }
+        .brochure-page.inner-soft .column { border: 1px solid #e2e8f0; background: #fafafa; }
+        .brochure-page.inner-none .column { border: none; }
+        .brochure-page.inner-shadow .column { border: 1px solid #e2e8f0; box-shadow: 0 4px 14px rgba(0,0,0,.08); }
+        .brochure-page.inner-double .column { border: 4px double #cbd5e1; }
+
+        .column-body { display: flex; flex-direction: column; min-width: 0; }
+        .column-footer-space { margin-top: 3mm; }
+        [data-blocks] { padding-top: 9px; display: flex; flex-direction: column; }
+
+        /* Kapak */
+        .cover-column { text-align: center; align-items: center; padding: 8mm 6mm; }
+        .cover-column.cover-gradient { background: linear-gradient(180deg, #eff6ff 0%, #ffffff 55%) !important; }
+        .cover-column.cover-dots { background-image: radial-gradient(#dbeafe 1.2px, transparent 1.2px) !important; background-size: 8px 8px; }
+        .cover-column.cover-lines { background: repeating-linear-gradient(180deg, #ffffff, #ffffff 6px, #f8fafc 6px, #f8fafc 7px) !important; }
+
+        .cover-top-area { width: 100%; display: flex; flex-direction: column; align-items: center; position: relative; margin-top: 2mm; }
+        .qr-container-top { position: absolute; top: -4mm; right: 0; width: 12mm; text-align: center; }
+        .qr-box-small {
+            width: 12mm; height: 12mm; background: #fff;
+            border: 1px solid #cbd5e1; border-radius: 3px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; overflow: hidden; margin: 0 auto;
+        }
+        .qr-box-small img { width: 100%; height: 100%; object-fit: cover; }
+        .qr-box-small span { font-size: 5pt; color: #64748b; font-weight: bold; }
+
+        .dynamic-logo-box { display: flex; align-items: center; justify-content: center; width: 100%; min-height: 50px; margin-bottom: 5mm; cursor: pointer; }
+        .dynamic-logo-box img { max-width: 100%; object-fit: contain; transition: height 0.15s ease; }
+        .dynamic-logo-text { font-size: 8pt; font-weight: 600; color: var(--accent); text-transform: uppercase; border: 1.5px dashed var(--accent); padding: 6px 12px; border-radius: 6px; background: #f8fafc; }
+
+        .cover-title {
+            font-family: var(--heading-font, 'Playfair Display', serif);
+            font-size: var(--title-size);
+            font-weight: 700; color: var(--primary);
+            text-transform: uppercase; line-height: 1.25;
+            margin-bottom: 5mm; letter-spacing: 0.3px;
+        }
+        .cover-subtitle {
+            font-family: 'Poppins', sans-serif; font-style: italic;
+            font-size: 9pt; color: var(--text-muted); line-height: 1.5;
+            margin-bottom: 6mm; padding: 0 2mm; font-weight: 400;
+        }
+        .cover-divider { width: 22mm; height: 3px; background: linear-gradient(90deg, var(--primary), var(--accent)); border-radius: 3px; margin: 0 auto 5mm; }
+        .cover-divider.dots { background: none; height: auto; font-size: 10pt; color: var(--accent); letter-spacing: 4px; }
+        .cover-divider.double { background: none; border-top: 2px solid var(--accent); border-bottom: 1px solid var(--accent); height: 4px; width: 28mm; }
+        .cover-divider.single { height: 1.5px; }
+
+        .cover-footer { border-top: 1.5px solid #e2e8f0; padding-top: 3mm; width: 100%; text-align: center; }
+        .footer-title { font-size: 8.5pt; color: var(--primary); font-weight: 600; }
+        .footer-subtitle { font-size: 7.5pt; color: var(--text-light); font-weight: 500; margin-top: 1px; }
+
+        /* Sütun başlığı */
+        .col-header { border-bottom: 2px solid var(--accent); padding-bottom: 2.5mm; margin-bottom: 4mm; }
+        .col-header.style-pill h2 { background: linear-gradient(90deg, var(--primary), var(--accent)); color: #fff !important; display: inline-block; padding: 1.5mm 4mm; border-radius: 20px; font-size: 10pt !important; }
+        .col-header.style-box h2 { background: var(--section-bg); border: 1px solid #e2e8f0; border-left: 4px solid var(--accent); padding: 1.5mm 3mm; border-radius: 0 6px 6px 0; }
+        .col-header.style-minimal { border-bottom: 1px solid #e2e8f0; }
+        .col-header.style-double { border-bottom: 4px double var(--accent); }
+        .col-header h2 { font-family: var(--heading-font, 'Playfair Display', serif); font-size: 12.5pt; color: var(--primary); text-transform: uppercase; font-weight: 700; }
+        .col-header p { font-size: 7.5pt; color: var(--text-light); }
+
+        /* Bölüm başlığı */
+        .section-title {
+            font-size: 9pt; font-weight: 600; color: var(--primary-dark);
+            background: var(--section-bg); border-left: 3px solid var(--accent);
+            padding: 3.5px 7px; margin: 4mm 0 2.5mm 0; border-radius: 0 4px 4px 0;
+            display: flex; align-items: center; gap: 6px; position: relative;
+        }
+        .section-title.style-pill { border-left: none; border-radius: 20px; background: linear-gradient(90deg, var(--primary), var(--accent)); color: #fff; padding: 4px 12px; }
+        .section-title.style-underline { background: none; border-left: none; border-bottom: 2px solid var(--accent); border-radius: 0; padding-left: 0; }
+        .section-title.style-box { border: 1px solid #e2e8f0; border-radius: var(--card-radius); background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+        .section-title.style-minimal { background: none; border-left: none; padding-left: 0; color: var(--primary); font-size: 9.5pt; }
+        .sec-num {
+            display: inline-flex; align-items: center; justify-content: center;
+            min-width: 18px; height: 18px; padding: 0 4px;
+            background: var(--accent); color: #fff; border-radius: 50%;
+            font-size: 8pt; font-weight: 700; flex-shrink: 0;
+        }
+        .section-title.style-pill .sec-num { background: rgba(255,255,255,.25); }
+
+        /* Bloklar */
+        .editable-block { position: relative; border-radius: var(--card-radius); margin-top: 1px; }
+        .editable-block:hover { outline: 1.5px dashed #93c5fd; outline-offset: 2px; }
+        .editable-block:hover .block-toolbar { display: flex; }
+        .block-toolbar {
+            display: none; position: absolute; top: -13px; right: 2px; z-index: 30;
+            background: #0f172a; border-radius: 6px; padding: 2px; gap: 1px;
+            box-shadow: 0 4px 12px rgba(0,0,0,.3); align-items: center;
+            max-width: calc(100% - 4px); flex-wrap: nowrap; overflow: hidden;
+            border: 1px solid #334155;
+        }
+        .block-toolbar button, .block-toolbar select {
+            border: none; background: transparent; color: #ffffff; cursor: pointer;
+            font-size: 8pt; padding: 3px 5px; border-radius: 4px; font-family: 'Poppins',sans-serif;
+            line-height: 1.2; white-space: nowrap; flex-shrink: 0;
+        }
+        .block-toolbar button:hover { background: rgba(255,255,255,.22); }
+        .block-toolbar select { font-size: 7pt; background: #1e293b; color: #fff; max-width: 62px; border: 1px solid #475569; }
+        .block-toolbar select option { color: #0f172a; background: #fff; }
+        .block-toolbar .tb-icon { font-size: 9pt; }
+        .tb-iconbtn { width: 24px; height: 22px; display: inline-flex; align-items: center; justify-content: center; }
+        .tb-iconbtn svg { width: 14px; height: 14px; stroke: #fff; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+        .tb-iconbtn img { width: 14px; height: 14px; object-fit: contain; }
+
+        /* İkon seçici: menüde görünen = bloğa uygulanan (aynı SVG kaynağı) */
+        .icon-picker {
+            position: fixed; z-index: 999; background: #ffffff; color: #0f172a;
+            border: 1px solid #cbd5e1; border-radius: 10px;
+            box-shadow: 0 12px 32px rgba(0,0,0,.25);
+            padding: 10px; width: 252px; display: none;
+            font-family: 'Poppins', sans-serif;
+        }
+        .icon-picker.open { display: block; }
+        .icon-picker h5 { font-size: 8pt; font-weight: 700; margin-bottom: 8px; color: #0f172a; }
+        .icon-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+        .icon-opt {
+            border: 1px solid #e2e8f0; background: #f8fafc; border-radius: 8px;
+            height: 44px; cursor: pointer; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; gap: 2px; padding: 3px 1px;
+        }
+        .icon-opt:hover { background: #eef2ff; border-color: #93c5fd; }
+        .icon-opt.active { background: #dbeafe; border-color: #2563eb; }
+        .icon-opt svg { width: 20px; height: 20px; stroke: #1e3a8a; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+        .icon-opt span { font-size: 6.5pt; color: #475569; line-height: 1; }
+        .icon-picker-foot { display: flex; gap: 6px; margin-top: 8px; }
+        .icon-picker-foot button {
+            flex: 1; padding: 6px; font-size: 7.5pt; font-weight: 600; cursor: pointer;
+            border-radius: 6px; border: 1px solid #cbd5e1; background: #f8fafc; color: #0f172a;
+            font-family: 'Poppins', sans-serif;
+        }
+        .icon-picker-foot button:hover { background: #eef2ff; }
+
+        /* Kart içi başlık + ikon */
+        .card-head { display: flex; align-items: flex-start; gap: 6px; margin-bottom: 1.5mm; }
+        .card-head h4 { flex: 1; min-width: 0; margin-bottom: 0 !important; }
+        .block-icon {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: var(--icon-size, 20px); height: var(--icon-size, 20px);
+            min-width: var(--icon-size, 20px); min-height: var(--icon-size, 20px);
+            border-radius: 6px; background: #eef2ff;
+            overflow: hidden; flex-shrink: 0; margin-top: 1px;
+        }
+        .block-icon svg { width: 72%; height: 72%; stroke: var(--icon-color, #2563eb); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+        .block-icon img { width: 100%; height: 100%; object-fit: contain; }
+        .block-icon:empty { display: none; }
+        .sec-icon {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 20px; height: 20px; min-width: 20px;
+            border-radius: 50%; background: rgba(37,99,235,.12); overflow: hidden; flex-shrink: 0;
+        }
+        .sec-icon svg { width: 70%; height: 70%; stroke: var(--icon-color, #2563eb); fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+        .sec-icon img { width: 100%; height: 100%; object-fit: contain; }
+        .sec-icon:empty { display: none; }
+        .section-title.style-pill .sec-icon { background: rgba(255,255,255,.25); }
+        .section-title.style-pill .sec-icon svg { stroke: #fff; }
+
+        /* Blok içi / blok arası görsel */
+        .block-img-wrap { position: relative; margin-bottom: 2mm; border-radius: calc(var(--card-radius) - 1px); overflow: hidden; background: #f1f5f9; border: 1px solid #e2e8f0; }
+        .block-img-wrap img { display: block; width: 100%; height: auto; max-height: 42mm; object-fit: cover; cursor: pointer; }
+        .block-img-wrap .img-cap { font-size: 7pt; color: var(--text-light); text-align: center; padding: 1.2mm 2mm; background: #fff; border-top: 1px solid #e2e8f0; }
+        .block-img-remove {
+            position: absolute; top: 4px; right: 4px; width: 20px; height: 20px;
+            border: none; border-radius: 50%; background: rgba(15,23,42,.8); color: #fff;
+            font-size: 10px; cursor: pointer; line-height: 1; display: flex; align-items: center; justify-content: center;
+        }
+        .block-img-remove:hover { background: #dc2626; }
+        .editable-block[data-kind="image"] { padding: 2.5mm; }
+        .editable-block[data-kind="image"] .block-img-wrap { margin-bottom: 0; }
+
+        .card { background: var(--card-bg); border: 1px solid #f1f5f9; border-radius: var(--card-radius); padding: 4.5mm; margin-bottom: 2.5mm; }
+        .card h4 { font-size: 8.5pt; font-weight: 600; color: var(--text-main); margin-bottom: 1.5mm; }
+        .card p, .card ul { font-size: var(--body-size); color: #334155; line-height: 1.45; font-weight: 400; }
+        .card ul { padding-left: 4mm; }
+        .card li { margin-bottom: 1mm; }
+
+        /* Kart şekilleri (data-shape) */
+        .editable-block[data-shape="modern"] { border: 1px solid #e2e8f0; border-left: 5px solid var(--accent); }
+        .editable-block[data-shape="shadow"] { border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,.1); }
+        .editable-block[data-shape="rounded"] { border-radius: 14px; border: 2px solid #e0e7ff; background: #f8fafc; }
+        .editable-block[data-shape="outline"] { border: 1.5px dashed var(--accent); background: #f8fafc; }
+        .editable-block[data-shape="gradient"] { background: linear-gradient(135deg, #eff6ff, #f5f3ff); border: 1px solid #dbeafe; }
+        .editable-block[data-shape="minimal"] { background: transparent; border: none; border-bottom: 1px solid #e2e8f0; border-radius: 0; padding-left: 1mm; padding-right: 1mm; }
+        .editable-block[data-shape="bold"] { border: 2px solid var(--primary); }
+
+        /* Blok türleri (data-kind) */
+        .editable-block[data-kind="warning"] { background: #fff5f5; border-left: 3px solid #ef4444; border-radius: 0 6px 6px 6px; }
+        .editable-block[data-kind="warning"] h4 { color: #991b1b; }
+        .editable-block[data-kind="warning"] p, .editable-block[data-kind="warning"] li { color: #7f1d1d; }
+        .editable-block[data-kind="success"] { background: #f0fdf4; border-left: 3px solid #22c55e; border-radius: 0 6px 6px 6px; }
+        .editable-block[data-kind="success"] h4 { color: #166534; }
+        .editable-block[data-kind="success"] p, .editable-block[data-kind="success"] li { color: #14532d; }
+        .editable-block[data-kind="quote"] { background: #fafafa; border-left: 3px solid #a78bfa; font-style: italic; border-radius: 0 6px 6px 6px; }
+        .editable-block[data-kind="list"] ul { list-style: none; padding-left: 0; }
+        .editable-block[data-kind="list"] li { padding-left: 5mm; position: relative; }
+        .editable-block[data-kind="list"] li::before { content: attr(data-bullet); position: absolute; left: 0; }
+
+        [contenteditable="true"]:hover { background: rgba(37,99,235,.04); border-radius: 3px; }
+        [contenteditable="true"]:focus { outline: 1.5px solid var(--accent); outline-offset: 1px; background: #fff; border-radius: 3px; }
+
+        .add-block-btn {
+            width: 100%; padding: 6px; margin-top: 2mm;
+            border: 1.5px dashed #93c5fd; background: #f8fafc; color: #2563eb;
+            border-radius: 6px; font-size: 8pt; font-weight: 600; cursor: pointer;
+            font-family: 'Poppins',sans-serif; transition: all .2s;
+        }
+        .add-block-btn:hover { background: #eff6ff; border-color: #2563eb; }
+
+        .watermark {
+            position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+            font-size: 48pt; font-weight: 700; color: rgba(30,58,138,.045);
+            pointer-events: none; text-transform: uppercase; letter-spacing: 4px;
+            transform: rotate(-12deg); z-index: 1; white-space: nowrap;
+        }
+        .column, .cover-top-area, .cover-footer { z-index: 2; }
+
+        @media print {
+            .control-panel, .block-toolbar, .add-block-btn, .no-print, .block-img-remove, .icon-picker, .news-overlay { display: none !important; }
+            body { background: none; padding: 0; display: block; }
+            .main-content { padding: 0; display: block; overflow: visible; }
+            .brochure-page { box-shadow: none; margin: 0; }
+            .column { overflow: hidden; }
+            .editable-block:hover { outline: none; }
+            [contenteditable="true"]:hover { background: none; }
+        }
+        @media (max-width: 1100px) {
+            body { flex-direction: column; }
+            .control-panel { width: 100%; min-width: 0; height: auto; position: static; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ============ KONTROL PANELİ ============ -->
+    <div class="control-panel no-print">
+        <h3>🎛️ Broşür Editörü Pro</h3>
+        <div class="ver-tag" id="verTag">v2.3.0 • internet varken güncellemeleri otomatik alır</div>
+
+        <div class="btn-row">
+            <button class="btn btn-primary" onclick="window.print()">🖨️ Yazdır</button>
+            <button class="btn btn-dark" id="btnSave">💾 Kaydet</button>
+            <button class="btn btn-light" id="btnLoad">📂 Yükle</button>
+            <button class="btn btn-danger" id="btnReset">↺ Sıfırla</button>
+            <button class="btn btn-light btn-full" id="btnNews">✨ Yenilikler</button>
+        </div>
+        <div class="hint">💡 Broşürdeki <b>tüm başlık ve metinlere doğrudan tıklayıp yazabilirsin.</b> Her bloğun üzerine gelince <b>↑ ↓ ⧉ 🗑</b> taşıma / kopyalama / silme araçları çıkar. Yaptıkların <b>Kaydet</b> ile tarayıcıya kaydedilir.</div>
+
+        <!-- TEMA -->
+        <details class="panel-section" open>
+            <summary>🎨 Tema & Renkler</summary>
+            <div class="section-body">
+                <div class="color-row">
+                    <label>Ana Renk<input type="color" id="cPrimary" value="#1e3a8a"></label>
+                    <label>Vurgu Rengi<input type="color" id="cAccent" value="#2563eb"></label>
+                    <label>Başlık Altı Zemin<input type="color" id="cSectionBg" value="#f8fafc"></label>
+                    <label>Sayfa Zemini<input type="color" id="cPageBg" value="#ffffff"></label>
+                    <label>Sütun Zemini<input type="color" id="cColumnBg" value="#ffffff"></label>
+                    <label>Kart Zemini<input type="color" id="cCardBg" value="#ffffff"></label>
+                </div>
+                <label>Kapak Deseni
+                    <select id="coverPattern">
+                        <option value="">Düz Beyaz</option>
+                        <option value="cover-gradient">Açık Mavi Geçiş</option>
+                        <option value="cover-dots">Nokta Deseni</option>
+                        <option value="cover-lines">İnce Çizgili</option>
+                    </select>
+                </label>
+                <label class="checkbox-label"><input type="checkbox" id="toggleRibbon"><span>Üst şerit (banner) göster</span></label>
+                <label>Filigran Yazısı (boş = kapalı)<input type="text" id="watermarkInput" placeholder="örn. REHBERLİK"></label>
+            </div>
+        </details>
+
+        <!-- YAZI -->
+        <details class="panel-section" open>
+            <summary>✏️ Yazı Tipleri & Boyutlar</summary>
+            <div class="section-body">
+                <div class="label-row">
+                    <label>Başlık Fontu
+                        <select id="headingFont">
+                            <option value="'Playfair Display', serif">Playfair (Klasik)</option>
+                            <option value="'Poppins', sans-serif">Poppins (Modern)</option>
+                            <option value="'Roboto', sans-serif">Roboto (Sade)</option>
+                            <option value="'Lora', serif">Lora (Zarif)</option>
+                            <option value="'Caveat', cursive">Caveat (El Yazısı)</option>
+                        </select>
+                    </label>
+                    <label>Gövde Fontu
+                        <select id="bodyFont">
+                            <option value="'Poppins', sans-serif">Poppins</option>
+                            <option value="'Roboto', sans-serif">Roboto</option>
+                            <option value="'Lora', serif">Lora</option>
+                        </select>
+                    </label>
+                </div>
+                <label><span class="range-label">Kapak Başlık Boyutu <b id="vTitleSize">19pt</b></span>
+                    <input type="range" id="rTitleSize" min="14" max="30" value="19"></label>
+                <label><span class="range-label">Gövde Yazı Boyutu <b id="vBodySize">8pt</b></span>
+                    <input type="range" id="rBodySize" min="6" max="12" value="8" step="0.5"></label>
+                <label>Kapak Başlık Hizası
+                    <select id="coverAlign">
+                        <option value="center">Ortalı</option>
+                        <option value="left">Sola</option>
+                        <option value="right">Sağa</option>
+                    </select>
+                </label>
+            </div>
+        </details>
+
+        <!-- ÇERÇEVE -->
+        <details class="panel-section" open>
+            <summary>🖼️ Çerçeve & Süsler</summary>
+            <div class="section-body">
+                <label>Dış Sayfa Süsü
+                    <select id="outerBorderSelect">
+                        <option value="outer-nakisli">Nakışlı Çift Çizgi</option>
+                        <option value="outer-classic">Klasik Çerçeve</option>
+                        <option value="outer-vintage">Vintage Çerçeve</option>
+                        <option value="outer-bold">Kalın Modern</option>
+                        <option value="outer-dashed">Kesik Çizgi</option>
+                        <option value="outer-rounded">Yuvarlak Köşe</option>
+                        <option value="outer-none">Süssüz / Dışsız</option>
+                    </select>
+                </label>
+                <label>Çerçeve Rengi<input type="color" id="borderColorPicker" value="#1e3a8a"></label>
+                <label>Köşe Süsü
+                    <select id="cornerSelect">
+                        <option value="">Yok</option>
+                        <option value="✦">✦ Yıldız</option>
+                        <option value="❦">❦ Çiçek</option>
+                        <option value="❖">❖ Elmas</option>
+                        <option value="✿">✿ Çiçek-2</option>
+                        <option value="•">• Nokta</option>
+                    </select>
+                </label>
+                <label>İç Sütun Çerçevesi
+                    <select id="innerBorderSelect">
+                        <option value="inner-classic">Klasik Çizgi</option>
+                        <option value="inner-modern">Modern Mavi</option>
+                        <option value="inner-soft">Yumuşak Arka Plan</option>
+                        <option value="inner-shadow">Gölgeli Kart</option>
+                        <option value="inner-double">Çift Çizgi</option>
+                        <option value="inner-none">Çerçevesiz</option>
+                    </select>
+                </label>
+                <label><span class="range-label">Sütun Köşe Yuvarlaklığı <b id="vColRadius">8px</b></span>
+                    <input type="range" id="rColRadius" min="0" max="20" value="8"></label>
+                <label><span class="range-label">Sayfa Boşluğu / Sütun Aralığı <b id="vGap">6mm</b></span>
+                    <input type="range" id="rGap" min="2" max="12" value="6"></label>
+            </div>
+        </details>
+
+        <!-- BLOK STİLLERİ -->
+        <details class="panel-section" open>
+            <summary>🧱 İçerik Blokları & Şekiller</summary>
+            <div class="section-body">
+                <label>Varsayılan Kart Şekli
+                    <select id="globalCardShape">
+                        <option value="classic">Klasik (ince çizgi)</option>
+                        <option value="modern">Modern (kalın sol şerit)</option>
+                        <option value="shadow">Gölgeli</option>
+                        <option value="rounded">Oval / Yumuşak</option>
+                        <option value="outline">Kesik Çerçeveli</option>
+                        <option value="gradient">Mavi-Mor Geçişli</option>
+                        <option value="minimal">Minimal (çizgisiz)</option>
+                        <option value="bold">Kalın Çerçeveli</option>
+                    </select>
+                </label>
+                <label>Bölüm Başlığı Stili
+                    <select id="sectionTitleStyle">
+                        <option value="">Sol Şeritli (varsayılan)</option>
+                        <option value="style-pill">Hap / Rozet</option>
+                        <option value="style-underline">Alt Çizgili</option>
+                        <option value="style-box">Kutulu Gölgeli</option>
+                        <option value="style-minimal">Minimal</option>
+                    </select>
+                </label>
+                <label>Sütun Başlığı Stili
+                    <select id="colHeaderStyle">
+                        <option value="">Alt Çizgili (varsayılan)</option>
+                        <option value="style-pill">Hap / Rozet</option>
+                        <option value="style-box">Kutulu</option>
+                        <option value="style-minimal">Minimal</option>
+                        <option value="style-double">Çift Çizgili</option>
+                    </select>
+                </label>
+                <label>Kapak Ayırıcı Çizgi
+                    <select id="coverDivider">
+                        <option value="">Gradyan Çizgi</option>
+                        <option value="dots">• • • Noktalar</option>
+                        <option value="double">Çift Çizgi</option>
+                        <option value="single">İnce Tek Çizgi</option>
+                        <option value="none">Gizle</option>
+                    </select>
+                </label>
+                <label><span class="range-label">Kart Köşe Yuvarlaklığı <b id="vCardRadius">6px</b></span>
+                    <input type="range" id="rCardRadius" min="0" max="18" value="6"></label>
+                <label class="checkbox-label"><input type="checkbox" id="toggleNumbers" checked><span>Bölüm numaralarını göster (1. 2. 3.)</span></label>
+                <label class="checkbox-label"><input type="checkbox" id="toggleColDesc" checked><span>Sütun alt açıklamalarını göster</span></label>
+                <div class="btn-row">
+                    <button class="btn btn-light" data-addcol="0">＋ 2.Sütuna Blok</button>
+                    <button class="btn btn-light" data-addcol="1">＋ 3.Sütuna Blok</button>
+                </div>
+                <div class="hint">Blok türleri: <b>Bilgi / Liste / Uyarı / Başarı / Alıntı / Görsel.</b> Tür menüsünden değiştir, ↑↓ ile sırala. İkon için <b>◉</b> butonu gerçek SVG listesini açar.</div>
+            </div>
+        </details>
+
+        <!-- İKON & GÖRSEL -->
+        <details class="panel-section" open>
+            <summary>🔣 İkon & Blok Görselleri</summary>
+            <div class="section-body">
+                <div class="label-row">
+                    <label>İkon Rengi<input type="color" id="cIconColor" value="#2563eb"></label>
+                    <label><span class="range-label">İkon Boyutu <b id="vIconSize">20px</b></span>
+                        <input type="range" id="rIconSize" min="14" max="32" value="20"></label>
+                </div>
+                <label class="checkbox-label"><input type="checkbox" id="toggleIcons" checked><span>Başlıklardaki ikonları göster</span></label>
+                <div class="btn-row">
+                    <button class="btn btn-light" data-addcol="0" data-kind="image">🖼️ Görsel (2.sütun)</button>
+                    <button class="btn btn-light" data-addcol="1" data-kind="image">🖼️ Görsel (3.sütun)</button>
+                </div>
+                <div class="btn-row">
+                    <button class="btn btn-light" data-addcol="0" data-kind="section">＋ Bölüm Başlığı (2)</button>
+                    <button class="btn btn-light" data-addcol="1" data-kind="section">＋ Bölüm Başlığı (3)</button>
+                </div>
+                <div class="hint">Her bloğun araç çubuğundaki <b>◉</b> butonuna bas: açılan listede <b>gerçek SVG'leri görürsün</b>, tıkladığın birebir bloğa uygulanır. <b>🖼</b> bloğun üstüne opsiyonel görsel alanı ekler.</div>
+                <input type="file" id="blockImgInput" accept="image/*,image/svg+xml" style="display:none">
+                <input type="file" id="customIconInput" accept="image/*,image/svg+xml" style="display:none">
+            </div>
+        </details>
+
+        <!-- ARŞİV -->
+        <details class="panel-section">
+            <summary>🗂️ Arşiv (eski broşürler)</summary>
+            <div class="section-body">
+                <button class="btn btn-light btn-full" id="btnArchiveNow">📥 Şimdi arşive ekle</button>
+                <div id="archiveList" style="display:flex;flex-direction:column;gap:6px"></div>
+                <div class="hint">Her <b>Kaydet</b>'te otomatik kopya alınır (son 10 saklanır). Güncellemeden önce de kopya saklanır, <b>Geri yükle</b> ile dönebilirsin.</div>
+            </div>
+        </details>
+
+        <!-- LOGO / QR -->
+        <details class="panel-section">
+            <summary>🖼️ Logo & QR Kod</summary>
+            <div class="section-body">
+                <label>Kurum Logosu<input type="file" id="logoInput" accept="image/*"></label>
+                <label><span class="range-label">Logo Boyutu <b id="sizeVal">60px</b></span>
+                    <input type="range" id="logoSizeRange" min="30" max="350" value="60"></label>
+                <label>QR Kod Görseli<input type="file" id="qrInput" accept="image/*"></label>
+                <label class="checkbox-label"><input type="checkbox" id="toggleQr" checked><span>QR Kodu Göster</span></label>
+            </div>
+        </details>
+
+        <!-- KAPAK / ALT BİLGİ -->
+        <details class="panel-section">
+            <summary>📝 Kapak & Alt Bilgi Metinleri</summary>
+            <div class="section-body">
+                <label>Kapak Başlığı<textarea id="inputCoverTitle">Sınav Stresiyle Baş Etme Rehberi</textarea></label>
+                <label>Kapak Alt Açıklaması<textarea id="inputCoverSub">Kaygıyı Yönet, Performansını Zirveye Taşı! Zihinsel ve fiziksel dengeyi kurma rehberi.</textarea></label>
+                <label>Unvan / Görev<input type="text" id="inputTitle" value="Psikolojik Danışman ve Rehber Öğretmen"></label>
+                <label>İsim Soyisim<input type="text" id="inputName" value="Ayşegül GENÇ"></label>
+                <label>Alt Mesaj (3. sütun)<input type="text" id="inputFooterMsg" value="Başarılar Dileriz! 🌟"></label>
+                <label class="checkbox-label"><input type="checkbox" id="toggleFooterMsg" checked><span>Alt mesajı göster</span></label>
+            </div>
+        </details>
+    </div>
+
+    <!-- ============ BROŞÜR ============ -->
+    <div class="main-content">
+        <div class="brochure-page outer-nakisli inner-classic" id="brochureContainer">
+            <div class="top-ribbon" id="topRibbon" style="display:none"></div>
+            <div class="watermark" id="watermark"></div>
+            <div class="corner-ornament corner-tl" data-corner></div>
+            <div class="corner-ornament corner-tr" data-corner></div>
+            <div class="corner-ornament corner-bl" data-corner></div>
+            <div class="corner-ornament corner-br" data-corner></div>
+
+            <!-- 1. SÜTUN: KAPAK -->
+            <div class="column cover-column" id="coverColumn">
+                <div class="cover-top-area" id="coverTopArea">
+                    <div class="qr-container-top" id="qrSection">
+                        <div class="qr-box-small" id="qrContainer" onclick="document.getElementById('qrInput').click()" title="QR Görseli Seç">
+                            <span id="qrText">QR</span>
+                        </div>
+                    </div>
+                    <div class="dynamic-logo-box" id="logoContainer" onclick="document.getElementById('logoInput').click()" title="Logo değiştirmek için tıkla">
+                        <span class="dynamic-logo-text" id="logoText">+ Logo Ekle</span>
+                    </div>
+                    <div class="cover-title" id="displayCoverTitle" contenteditable="true">Sınav Stresiyle Baş Etme Rehberi</div>
+                    <div class="cover-divider" id="coverDividerEl"></div>
+                    <div class="cover-subtitle" id="displayCoverSub" contenteditable="true">Kaygıyı Yönet, Performansını Zirveye Taşı! Zihinsel ve fiziksel dengeyi kurma rehberi.</div>
+                </div>
+                <div class="cover-footer">
+                    <div class="footer-title" id="displayTitle" contenteditable="true">Psikolojik Danışman ve Rehber Öğretmen</div>
+                    <div class="footer-subtitle" id="displayName" contenteditable="true">Ayşegül GENÇ</div>
+                </div>
+            </div>
+
+            <!-- 2. SÜTUN -->
+            <div class="column" data-column="0">
+                <div class="column-body">
+                    <div class="col-header">
+                        <h2 contenteditable="true">Zihinsel ve Fiziksel Çözümler</h2>
+                        <p class="col-desc" contenteditable="true">Stresi kaynağında durdurun</p>
+                    </div>
+                    <div class="blocks" data-blocks>
+                        <div class="section-title editable-block" data-section="1"><span class="sec-num">1</span><span contenteditable="true">Zihinsel Stratejiler</span></div>
+                        <div class="editable-block card" data-kind="card" data-shape="classic">
+                            <div class="block-toolbar no-print">
+                                <button data-act="up" title="Yukarı">↑</button><button data-act="down" title="Aşağı">↓</button>
+                                <select data-act="kind" title="Blok türü">
+                                    <option value="card">Bilgi</option><option value="list">Liste</option>
+                                    <option value="warning">Uyarı</option><option value="success">Başarı</option><option value="quote">Alıntı</option>
+                                </select>
+                                <button data-act="dup" title="Kopyala">⧉</button><button data-act="del" title="Sil">🗑</button>
+                            </div>
+                            <h4 contenteditable="true">Olumlu İç Konuşma</h4>
+                            <p contenteditable="true">"Yapamayacağım" yerine "Elimden gelenin en iyisini yapıyorum" diyerek kalıpları olumluya çevir.</p>
+                        </div>
+                        <div class="editable-block card" data-kind="card" data-shape="classic">
+                            <div class="block-toolbar no-print">
+                                <button data-act="up" title="Yukarı">↑</button><button data-act="down" title="Aşağı">↓</button>
+                                <select data-act="kind" title="Blok türü">
+                                    <option value="card">Bilgi</option><option value="list">Liste</option>
+                                    <option value="warning">Uyarı</option><option value="success">Başarı</option><option value="quote">Alıntı</option>
+                                </select>
+                                <button data-act="dup" title="Kopyala">⧉</button><button data-act="del" title="Sil">🗑</button>
+                            </div>
+                            <h4 contenteditable="true">Gerçekçi Hedefler</h4>
+                            <p contenteditable="true">Mükemmeliyetçilik kaygıyı tetikler. Ulaşılabilir günlük hedefler belirleyerek baskıyı azalt.</p>
+                        </div>
+                        <div class="section-title editable-block" data-section="2"><span class="sec-num">2</span><span contenteditable="true">Fiziksel Denge</span></div>
+                        <div class="editable-block card" data-kind="card" data-shape="classic">
+                            <div class="block-toolbar no-print">
+                                <button data-act="up" title="Yukarı">↑</button><button data-act="down" title="Aşağı">↓</button>
+                                <select data-act="kind" title="Blok türü">
+                                    <option value="card">Bilgi</option><option value="list">Liste</option>
+                                    <option value="warning">Uyarı</option><option value="success">Başarı</option><option value="quote">Alıntı</option>
+                                </select>
+                                <button data-act="dup" title="Kopyala">⧉</button><button data-act="del" title="Sil">🗑</button>
+                            </div>
+                            <h4 contenteditable="true">Doğru Nefes Egzersizi</h4>
+                            <p contenteditable="true">4 sn nefes al, 4 sn tut, 4 sn ver. Bu teknik sinir sistemini anında sakinleştirir.</p>
+                        </div>
+                    </div>
+                    <button class="add-block-btn no-print" data-addcol="0">＋ Blok Ekle</button>
+                </div>
+                <div class="column-footer-space">
+                    <div class="editable-block card" data-kind="warning" data-shape="classic" id="defaultWarning">
+                        <div class="block-toolbar no-print">
+                            <button data-act="up" title="Yukarı">↑</button><button data-act="down" title="Aşağı">↓</button>
+                            <select data-act="kind" title="Blok türü">
+                                <option value="card">Bilgi</option><option value="list">Liste</option>
+                                <option value="warning" selected>Uyarı</option><option value="success">Başarı</option><option value="quote">Alıntı</option>
+                            </select>
+                            <button data-act="dup" title="Kopyala">⧉</button><button data-act="del" title="Sil">🗑</button>
+                        </div>
+                        <h4 contenteditable="true">Unutma!</h4>
+                        <p contenteditable="true">Stres, vücudun tehlikeye karşı verdiği normal bir tepkidir. Onu yok etmek yerine yönetmek yeterlidir.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. SÜTUN -->
+            <div class="column" data-column="1">
+                <div class="column-body">
+                    <div class="col-header">
+                        <h2 contenteditable="true">Planlama ve Sınav Anı</h2>
+                        <p class="col-desc" contenteditable="true">Süreç yönetimi ve pratik ipuçları</p>
+                    </div>
+                    <div class="blocks" data-blocks>
+                        <div class="section-title editable-block" data-section="3"><span class="sec-num">3</span><span contenteditable="true">Çalışma Alışkanlıkları</span></div>
+                        <div class="editable-block card" data-kind="card" data-shape="classic">
+                            <div class="block-toolbar no-print">
+                                <button data-act="up" title="Yukarı">↑</button><button data-act="down" title="Aşağı">↓</button>
+                                <select data-act="kind" title="Blok türü">
+                                    <option value="card">Bilgi</option><option value="list">Liste</option>
+                                    <option value="warning">Uyarı</option><option value="success">Başarı</option><option value="quote">Alıntı</option>
+                                </select>
+                                <button data-act="dup" title="Kopyala">⧉</button><button data-act="del" title="Sil">🗑</button>
+                            </div>
+                            <h4 contenteditable="true">Pomodoro Tekniği</h4>
+                            <p contenteditable="true">25 dk odak, 5 dk mola vererek zihnin yorulmasını önle ve verimliliği artır.</p>
+                        </div>
+                        <div class="editable-block card" data-kind="card" data-shape="classic">
+                            <div class="block-toolbar no-print">
+                                <button data-act="up" title="Yukarı">↑</button><button data-act="down" title="Aşağı">↓</button>
+                                <select data-act="kind" title="Blok türü">
+                                    <option value="card">Bilgi</option><option value="list">Liste</option>
+                                    <option value="warning">Uyarı</option><option value="success">Başarı</option><option value="quote">Alıntı</option>
+                                </select>
+                                <button data-act="dup" title="Kopyala">⧉</button><button data-act="del" title="Sil">🗑</button>
+                            </div>
+                            <h4 contenteditable="true">Kaliteli Uyku</h4>
+                            <p contenteditable="true">Sınavdan önceki gece uykusuz kalmak bilgilerin hafızaya yerleşmesini engeller. En az 7-8 saat uyu.</p>
+                        </div>
+                        <div class="section-title editable-block" data-section="4"><span class="sec-num">4</span><span contenteditable="true">Sınav Anı Taktikleri</span></div>
+                        <div class="editable-block card" data-kind="list" data-shape="classic">
+                            <div class="block-toolbar no-print">
+                                <button data-act="up" title="Yukarı">↑</button><button data-act="down" title="Aşağı">↓</button>
+                                <select data-act="kind" title="Blok türü">
+                                    <option value="card">Bilgi</option><option value="list" selected>Liste</option>
+                                    <option value="warning">Uyarı</option><option value="success">Başarı</option><option value="quote">Alıntı</option>
+                                </select>
+                                <button data-act="dup" title="Kopyala">⧉</button><button data-act="del" title="Sil">🗑</button>
+                            </div>
+                            <ul>
+                                <li data-bullet="▸" contenteditable="true"><strong>Sorularla İnatlaşma:</strong> Takıldığın soruyu geç, zamanı verimli kullan.</li>
+                                <li data-bullet="▸" contenteditable="true"><strong>Su Tüketimi:</strong> Sınav esnasında minik yudumlarla su içmek odaklanmayı artırır.</li>
+                                <li data-bullet="▸" contenteditable="true"><strong>Duruşunu Düzelt:</strong> Dik oturmak beyne giden oksijen miktarını artırır.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <button class="add-block-btn no-print" data-addcol="1">＋ Blok Ekle</button>
+                </div>
+                <div class="cover-footer" style="border-top: none; padding-top: 0;" id="footerMsgWrap">
+                    <div style="font-size: 8pt; color: var(--text-light); font-weight: 500;" id="displayFooterMsg" contenteditable="true">Başarılar Dileriz! 🌟</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const $ = id => document.getElementById(id);
+        const root = document.documentElement;
+        const container = $('brochureContainer');
+        let uploadedLogoSrc = null;
+        let currentOuterBorder = 'outer-nakisli';
+        let currentInnerBorder = 'inner-classic';
+        let defaultShape = 'classic';
+        let sectionCounter = 4;
+        let pendingImgBlock = null;
+        let pendingIconTarget = null;
+
+        const ICONS = {
+            none: '',
+            brain: '<svg viewBox="0 0 24 24"><path d="M9 3a3 3 0 0 0-3 3 3 3 0 0 0-2 2.5A3 3 0 0 0 5 14a3 3 0 0 0 2 2.5A3 3 0 0 0 9 21c1 0 1-1 2-1s1 1 2 1a3 3 0 0 0 2-4.5A3 3 0 0 0 17 14a3 3 0 0 0 1-5.5A3 3 0 0 0 15 3c-1 0-1 1-2 1s-1-1-2-1z"/><path d="M12 3v18"/></svg>',
+            target: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2"/></svg>',
+            breath: '<svg viewBox="0 0 24 24"><path d="M3 8h9a3 3 0 1 0-3-3"/><path d="M3 12h13a3 3 0 1 1-3 3"/><path d="M3 16h6"/></svg>',
+            clock: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+            moon: '<svg viewBox="0 0 24 24"><path d="M20 14A8 8 0 0 1 10 4a8 8 0 1 0 10 10z"/></svg>',
+            drop: '<svg viewBox="0 0 24 24"><path d="M12 3s6 6.2 6 11a6 6 0 0 1-12 0c0-4.8 6-11 6-11z"/></svg>',
+            check: '<svg viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5"/></svg>',
+            star: '<svg viewBox="0 0 24 24"><path d="M12 3l2.7 5.6 6.1.8-4.5 4.2 1.1 6-5.4-3-5.4 3 1.1-6L3.2 9.4l6.1-.8z"/></svg>',
+            warn: '<svg viewBox="0 0 24 24"><path d="M12 3l10 17H2z"/><path d="M12 10v4M12 17.5v.5"/></svg>',
+            bulb: '<svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.8.6 1.5 1.4 1.5 2.1h4c0-.7.7-1.5 1.5-2.1A6 6 0 0 0 12 3z"/></svg>',
+            book: '<svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19a2 2 0 0 1 2-2h13"/></svg>',
+            heart: '<svg viewBox="0 0 24 24"><path d="M12 20s-7-4.5-9-9a5 5 0 0 1 9-3 5 5 0 0 1 9 3c-2 4.5-9 9-9 9z"/></svg>',
+            chat: '<svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-8 8H4l2-3a8 8 0 1 1 15-5z"/></svg>'
+        };
+        const ICON_NAMES = { brain: 'Zihin', target: 'Hedef', breath: 'Nefes', clock: 'Zaman', moon: 'Uyku', drop: 'Su', check: 'Onay', star: 'Yıldız', warn: 'Uyarı', bulb: 'İpucu', book: 'Kitap', heart: 'Kalp', chat: 'Sohbet' };
+        let pickerTarget = null;
+
+        const TOOLBAR_HTML = `
+            <div class="block-toolbar no-print">
+                <button data-act="up" title="Yukarı">↑</button><button data-act="down" title="Aşağı">↓</button>
+                <select data-act="kind" title="Blok türü">
+                    <option value="card">Bilgi</option><option value="list">Liste</option>
+                    <option value="warning">Uyarı</option><option value="success">Başarı</option><option value="quote">Alıntı</option>
+                    <option value="image">Görsel</option>
+                </select>
+                <button data-act="iconbtn" class="tb-iconbtn" title="İkon seç (gerçek SVG listesi açılır)">◉</button>
+                <button data-act="img" title="Bloğa görsel ekle/kaldır">🖼</button>
+                <button data-act="dup" title="Kopyala">⧉</button><button data-act="del" title="Sil">🗑</button>
+            </div>`;
+
+        function refreshIconBtn(block){
+            const btn = block.querySelector('[data-act="iconbtn"]');
+            if (!btn) return;
+            const name = block.dataset.icon || 'none';
+            if (block.dataset.customIcon){ btn.innerHTML = '<img src="' + block.dataset.customIcon + '" alt="">'; }
+            else if (name !== 'none' && ICONS[name]){ btn.innerHTML = ICONS[name]; }
+            else { btn.textContent = '◉'; }
+            btn.title = 'İkon: ' + (ICON_NAMES[name] || 'Yok') + ' — tıklayınca gerçek liste açılır';
+        }
+
+        function openIconPicker(block, anchor){
+            pickerTarget = block;
+            const picker = $('iconPicker');
+            const grid = $('iconGrid');
+            const cur = block.dataset.icon || 'none';
+            grid.innerHTML = '';
+            Object.keys(ICONS).forEach(function(key){
+                if (key === 'none') return;
+                const b = document.createElement('button');
+                b.type = 'button';
+                b.className = 'icon-opt' + (cur === key ? ' active' : '');
+                b.dataset.icon = key;
+                b.title = ICON_NAMES[key] || key;
+                b.innerHTML = ICONS[key] + '<span>' + (ICON_NAMES[key] || key) + '</span>';
+                b.addEventListener('click', function(ev){
+                    ev.stopPropagation();
+                    setBlockIcon(pickerTarget, key);
+                    picker.classList.remove('open');
+                });
+                grid.appendChild(b);
+            });
+            const r = anchor.getBoundingClientRect();
+            picker.classList.add('open');
+            let x = Math.min(r.left, window.innerWidth - 264);
+            let y = r.bottom + 6;
+            if (y + 300 > window.innerHeight) y = Math.max(8, r.top - 300);
+            picker.style.left = Math.max(8, x) + 'px';
+            picker.style.top = y + 'px';
+        }
+
+        function setVar(name, val){ root.style.setProperty(name, val); }
+
+        /* ---------- Renkler ---------- */
+        $('cPrimary').addEventListener('input', e => { setVar('--primary', e.target.value); setVar('--primary-dark', e.target.value); });
+        $('cAccent').addEventListener('input', e => setVar('--accent', e.target.value));
+        $('cSectionBg').addEventListener('input', e => setVar('--section-bg', e.target.value));
+        $('cPageBg').addEventListener('input', e => setVar('--page-bg', e.target.value));
+        $('cColumnBg').addEventListener('input', e => { setVar('--column-bg', e.target.value); document.querySelectorAll('.column').forEach(c => c.style.background = e.target.value); });
+        $('cCardBg').addEventListener('input', e => setVar('--card-bg', e.target.value));
+
+        /* ---------- Yazı ---------- */
+        $('headingFont').addEventListener('change', e => setVar('--heading-font', e.target.value));
+        $('bodyFont').addEventListener('change', e => { document.body.style.fontFamily = e.target.value; });
+        $('rTitleSize').addEventListener('input', e => { setVar('--title-size', e.target.value + 'pt'); $('vTitleSize').innerText = e.target.value + 'pt'; });
+        $('rBodySize').addEventListener('input', e => { setVar('--body-size', e.target.value + 'pt'); $('vBodySize').innerText = e.target.value + 'pt'; });
+        $('coverAlign').addEventListener('change', e => {
+            const v = e.target.value;
+            $('displayCoverTitle').style.textAlign = v; $('displayCoverSub').style.textAlign = v;
+            $('coverTopArea').style.alignItems = v === 'center' ? 'center' : (v === 'left' ? 'flex-start' : 'flex-end');
+        });
+
+        /* ---------- Kapak deseni / şerit / filigran ---------- */
+        $('coverPattern').addEventListener('change', e => {
+            const col = $('coverColumn');
+            col.classList.remove('cover-gradient','cover-dots','cover-lines');
+            if (e.target.value) col.classList.add(e.target.value);
+        });
+        $('toggleRibbon').addEventListener('change', e => $('topRibbon').style.display = e.target.checked ? 'block' : 'none');
+        $('watermarkInput').addEventListener('input', e => $('watermark').innerText = e.target.value);
+
+        /* ---------- İkon & görsel panel kontrolleri ---------- */
+        $('cIconColor').addEventListener('input', e => setVar('--icon-color', e.target.value));
+        $('rIconSize').addEventListener('input', e => { setVar('--icon-size', e.target.value + 'px'); $('vIconSize').innerText = e.target.value + 'px'; });
+        $('toggleIcons').addEventListener('change', e => {
+            document.querySelectorAll('.block-icon, .sec-icon').forEach(el => el.style.display = e.target.checked ? '' : 'none');
+        });
+
+        /* ---------- Çerçeve ---------- */
+        $('outerBorderSelect').addEventListener('change', e => { currentOuterBorder = e.target.value; updateContainerClasses(); });
+        $('innerBorderSelect').addEventListener('change', e => { currentInnerBorder = e.target.value; updateContainerClasses(); });
+        $('borderColorPicker').addEventListener('input', e => setVar('--outer-border-color', e.target.value));
+        $('cornerSelect').addEventListener('change', e => document.querySelectorAll('[data-corner]').forEach(el => el.innerText = e.target.value));
+        $('rColRadius').addEventListener('input', e => { setVar('--column-radius', e.target.value + 'px'); $('vColRadius').innerText = e.target.value + 'px'; });
+        $('rGap').addEventListener('input', e => { setVar('--column-gap', e.target.value + 'mm'); $('vGap').innerText = e.target.value + 'mm'; });
+        function updateContainerClasses(){ container.className = `brochure-page ${currentOuterBorder} ${currentInnerBorder}`; }
+
+        /* ---------- Blok stilleri ---------- */
+        $('globalCardShape').addEventListener('change', e => {
+            defaultShape = e.target.value;
+            document.querySelectorAll('.editable-block.card').forEach(b => b.dataset.shape = defaultShape);
+        });
+        $('rCardRadius').addEventListener('input', e => { setVar('--card-radius', e.target.value + 'px'); $('vCardRadius').innerText = e.target.value + 'px'; });
+        $('sectionTitleStyle').addEventListener('change', e => {
+            document.querySelectorAll('.section-title').forEach(s => {
+                s.classList.remove('style-pill','style-underline','style-box','style-minimal');
+                if (e.target.value) s.classList.add(e.target.value);
+            });
+        });
+        $('colHeaderStyle').addEventListener('change', e => {
+            document.querySelectorAll('.col-header').forEach(s => {
+                s.classList.remove('style-pill','style-box','style-minimal','style-double');
+                if (e.target.value) s.classList.add(e.target.value);
+            });
+        });
+        $('coverDivider').addEventListener('change', e => {
+            const d = $('coverDividerEl');
+            d.className = 'cover-divider';
+            if (e.target.value === 'dots'){ d.classList.add('dots'); d.innerText = '• • •'; }
+            else if (e.target.value && e.target.value !== 'none'){ d.classList.add(e.target.value); d.innerText = ''; }
+            else if (e.target.value === 'none'){ d.style.display = 'none'; return; }
+            d.style.display = 'block';
+        });
+        $('toggleNumbers').addEventListener('change', e => {
+            document.querySelectorAll('.sec-num').forEach(n => n.style.display = e.target.checked ? 'inline-flex' : 'none');
+        });
+        $('toggleColDesc').addEventListener('change', e => {
+            document.querySelectorAll('.col-desc').forEach(n => n.style.display = e.target.checked ? 'block' : 'none');
+        });
+
+        /* ---------- Logo / QR ---------- */
+        $('logoInput').addEventListener('change', e => {
+            const f = e.target.files[0]; if (!f) return;
+            const r = new FileReader();
+            r.onload = ev => { uploadedLogoSrc = ev.target.result; updateLogoElement(); };
+            r.readAsDataURL(f);
+        });
+        $('logoSizeRange').addEventListener('input', e => { $('sizeVal').innerText = e.target.value + 'px'; updateLogoElement(); });
+        function updateLogoElement(){
+            if (!uploadedLogoSrc) return;
+            const h = $('logoSizeRange').value;
+            $('logoContainer').innerHTML = `<img src="${uploadedLogoSrc}" alt="Logo" style="height:${h}px;">`;
+        }
+        $('qrInput').addEventListener('change', e => {
+            const f = e.target.files[0]; if (!f) return;
+            const r = new FileReader();
+            r.onload = ev => { $('qrContainer').innerHTML = `<img src="${ev.target.result}" alt="QR">`; };
+            r.readAsDataURL(f);
+        });
+        $('toggleQr').addEventListener('change', e => $('qrSection').style.display = e.target.checked ? 'block' : 'none');
+
+        /* ---------- Metin girişleri ---------- */
+        $('inputCoverTitle').addEventListener('input', e => $('displayCoverTitle').innerText = e.target.value);
+        $('inputCoverSub').addEventListener('input', e => $('displayCoverSub').innerText = e.target.value);
+        $('inputTitle').addEventListener('input', e => $('displayTitle').innerText = e.target.value);
+        $('inputName').addEventListener('input', e => $('displayName').innerText = e.target.value);
+        $('inputFooterMsg').addEventListener('input', e => $('displayFooterMsg').innerText = e.target.value);
+        $('toggleFooterMsg').addEventListener('change', e => $('footerMsgWrap').style.display = e.target.checked ? 'block' : 'none');
+
+        /* ---------- Blok işlemleri (event delegation) ---------- */
+        function setBlockIcon(block, name, customSrc){
+            let holder = block.querySelector('.block-icon, .sec-icon');
+            if (!holder) return;
+            if (customSrc){ holder.innerHTML = `<img src="${customSrc}" alt="ikon">`; block.dataset.icon = 'custom'; block.dataset.customIcon = customSrc; }
+            else if (name && name !== 'none' && ICONS[name]){ holder.innerHTML = ICONS[name]; block.dataset.icon = name; delete block.dataset.customIcon; }
+            else { holder.innerHTML = ''; block.dataset.icon = 'none'; delete block.dataset.customIcon; }
+            if (!$('toggleIcons').checked) holder.style.display = 'none';
+            else holder.style.display = '';
+            refreshIconBtn(block);
+        }
+
+        function ensureBlockImage(block, src){
+            let wrap = block.querySelector('.block-img-wrap');
+            if (src){
+                if (!wrap){
+                    wrap = document.createElement('div');
+                    wrap.className = 'block-img-wrap';
+                    wrap.innerHTML = `<button class="block-img-remove no-print" data-act="imgdel" title="Görseli kaldır">×</button><img alt="Blok görseli"><div class="img-cap" contenteditable="true">Görsel açıklaması…</div>`;
+                    block.prepend(wrap);
+                    const img = wrap.querySelector('img');
+                    img.addEventListener('click', () => { pendingImgBlock = block; $('blockImgInput').click(); });
+                }
+                wrap.querySelector('img').src = src;
+                block.dataset.hasImg = '1';
+            } else if (wrap){ wrap.remove(); delete block.dataset.hasImg; }
+        }
+
+        function makeBlock(kind, iconName){
+            kind = (kind || 'card').trim().toLowerCase();
+            const div = document.createElement('div');
+            if (kind === 'section'){
+                sectionCounter++;
+                div.className = 'section-title editable-block';
+                div.dataset.section = sectionCounter;
+                const showNum = $('toggleNumbers').checked;
+                div.innerHTML = `${TOOLBAR_HTML}<span class="sec-icon"></span><span class="sec-num" style="display:${showNum ? 'inline-flex' : 'none'}">${sectionCounter}</span><span contenteditable="true">Yeni Bölüm Başlığı</span>`;
+                return div;
+            }
+            div.className = 'editable-block card';
+            div.dataset.kind = kind === 'image' ? 'image' : kind;
+            div.dataset.shape = defaultShape;
+            if (kind === 'list'){
+                div.innerHTML = TOOLBAR_HTML + `<div class="card-head"><span class="block-icon"></span><h4 contenteditable="true">Yeni Liste</h4></div><ul><li data-bullet="▸" contenteditable="true">Yeni madde — tıklayıp yazın</li><li data-bullet="▸" contenteditable="true">İkinci madde</li></ul>`;
+            } else if (kind === 'image'){
+                div.innerHTML = TOOLBAR_HTML + `<div class="block-img-wrap"><button class="block-img-remove no-print" data-act="imgdel" title="Görseli kaldır">×</button><img alt="Blok görseli" src=""><div class="img-cap" contenteditable="true">Görsel açıklaması…</div></div>`;
+                const img = div.querySelector('img');
+                img.addEventListener('click', () => { pendingImgBlock = div; $('blockImgInput').click(); });
+                setTimeout(() => { pendingImgBlock = div; $('blockImgInput').click(); }, 50);
+            } else {
+                const titles = { card: 'Yeni Bilgi Kartı', warning: 'Dikkat!', success: 'İpucu!', quote: 'Alıntı' };
+                div.innerHTML = TOOLBAR_HTML + `<div class="card-head"><span class="block-icon"></span><h4 contenteditable="true">${titles[kind] || 'Yeni Bilgi Kartı'}</h4></div><p contenteditable="true">Tıklayıp içeriğinizi yazın...</p>`;
+            }
+            const sel = div.querySelector('[data-act="kind"]');
+            if (sel && [...sel.options].some(o => o.value === div.dataset.kind)) sel.value = div.dataset.kind;
+            if (iconName && ICONS[iconName]) setBlockIcon(div, iconName);
+            else refreshIconBtn(div);
+            return div;
+        }
+
+        // Eski blokları yeni yapıya geçir: card-head + ikon + geniş toolbar
+        function migrateBlocks(){
+            document.querySelectorAll('.editable-block').forEach(block => {
+                let tb = block.querySelector('.block-toolbar');
+                const kind = block.classList.contains('section-title') ? 'section' : (block.dataset.kind || 'card');
+                if (!tb){
+                    block.insertAdjacentHTML('afterbegin', TOOLBAR_HTML);
+                    tb = block.querySelector('.block-toolbar');
+                    if (kind === 'section'){
+                        const num = block.querySelector('.sec-num');
+                        const txt = block.querySelector('[contenteditable]');
+                        block.innerHTML = '';
+                        block.append(tb);
+                        const ic = document.createElement('span'); ic.className = 'sec-icon';
+                        block.append(ic);
+                        if (num) block.append(num);
+                        if (txt) block.append(txt);
+                    }
+                }
+                // toolbar'ı yeni formata yükselt: eski emoji select'i görsel butona çevir
+                const oldIconSel = tb ? tb.querySelector('[data-act="icon"]') : null;
+                if (oldIconSel){
+                    const btn = document.createElement('button');
+                    btn.setAttribute('data-act', 'iconbtn');
+                    btn.className = 'tb-iconbtn';
+                    btn.title = 'İkon seç';
+                    btn.textContent = '◉';
+                    oldIconSel.replaceWith(btn);
+                }
+                if (tb && !tb.querySelector('[data-act="iconbtn"]')){
+                    const iconBtn = document.createElement('button');
+                    iconBtn.setAttribute('data-act', 'iconbtn');
+                    iconBtn.className = 'tb-iconbtn';
+                    iconBtn.title = 'İkon seç';
+                    iconBtn.textContent = '◉';
+                    tb.insertBefore(iconBtn, tb.querySelector('[data-act="dup"]'));
+                }
+                if (tb){
+                    const kindSel = tb.querySelector('[data-act="kind"]');
+                    if (kindSel && ![...kindSel.options].some(o => o.value === 'image')){
+                        kindSel.insertAdjacentHTML('beforeend', '<option value="image">Görsel</option>');
+                    }
+                    if (kindSel && block.dataset.kind) kindSel.value = block.dataset.kind;
+                    if (!tb.querySelector('[data-act="img"]')){
+                        const imgBtn = document.createElement('button');
+                        imgBtn.setAttribute('data-act', 'img');
+                        imgBtn.title = 'Bloğa görsel ekle/kaldır';
+                        imgBtn.textContent = '🖼';
+                        tb.insertBefore(imgBtn, tb.querySelector('[data-act="dup"]'));
+                    }
+                    refreshIconBtn(block);
+                }
+                // kart başlığını .card-head içine al
+                if (block.classList.contains('card') && block.querySelector('h4') && !block.querySelector('.card-head')){
+                    const h = block.querySelector('h4');
+                    const head = document.createElement('div');
+                    head.className = 'card-head';
+                    const ic = document.createElement('span');
+                    ic.className = 'block-icon';
+                    if (block.dataset.customIcon){ ic.innerHTML = `<img src="${block.dataset.customIcon}" alt="ikon">`; }
+                    else if (block.dataset.icon && ICONS[block.dataset.icon]){ ic.innerHTML = ICONS[block.dataset.icon]; }
+                    h.before(head);
+                    head.append(ic, h);
+                }
+                // kayıtlı ikonu uygula
+                if (block.dataset.icon && block.dataset.icon !== 'none' && !block.querySelector('.block-icon svg, .block-icon img, .sec-icon svg, .sec-icon img')){
+                    setBlockIcon(block, block.dataset.icon, block.dataset.customIcon);
+                }
+                if (!$('toggleIcons') || !$('toggleIcons').checked){
+                    block.querySelectorAll('.block-icon, .sec-icon').forEach(el => el.style.display = 'none');
+                }
+                // görsel bloğundaki img'ye tıklama davranışı
+                const bimg = block.querySelector('.block-img-wrap img');
+                if (bimg && !bimg.dataset.bound){
+                    bimg.dataset.bound = '1';
+                    bimg.addEventListener('click', () => { pendingImgBlock = block; $('blockImgInput').click(); });
+                }
+            });
+        }
+
+        function addBlockToColumn(colIndex, kind){
+            const cols = document.querySelectorAll('[data-blocks]');
+            const target = cols[colIndex];
+            if (!target) return;
+            let blockKind = kind;
+            if (!blockKind){
+                blockKind = prompt('Blok türü yazın: card, list, warning, success, quote, image (görsel), section (bölüm başlığı)', 'card') || 'card';
+            }
+            target.appendChild(makeBlock(blockKind.trim().toLowerCase()));
+            renumberSections();
+        }
+
+        document.querySelectorAll('[data-addcol]').forEach(btn => {
+            btn.addEventListener('click', () => addBlockToColumn(parseInt(btn.dataset.addcol, 10), btn.dataset.kind));
+        });
+
+        document.addEventListener('click', e => {
+            const btn = e.target.closest('[data-act]');
+            if (!btn) return;
+            const block = btn.closest('.editable-block');
+            if (!block) return;
+            const act = btn.dataset.act;
+            if (act === 'del'){ if (confirm('Bu blok silinsin mi?')) block.remove(); }
+            else if (act === 'dup'){ const c = block.cloneNode(true); block.after(c); migrateBlocks(); }
+            else if (act === 'up'){ const p = block.previousElementSibling; if (p) block.before(p); }
+            else if (act === 'down'){ const n = block.nextElementSibling; if (n) block.after(n); }
+            else if (act === 'img'){
+                if (block.querySelector('.block-img-wrap')){ ensureBlockImage(block, null); }
+                else { pendingImgBlock = block; $('blockImgInput').click(); }
+            }
+            else if (act === 'imgdel'){ ensureBlockImage(block, null); e.stopPropagation(); return; }
+            else if (act === 'iconbtn'){ openIconPicker(block, btn); e.stopPropagation(); return; }
+            renumberSections();
+        });
+
+        // Seçici dışına tıklayınca kapat
+        document.addEventListener('click', e => {
+            const picker = $('iconPicker');
+            if (picker && picker.classList.contains('open') && !e.target.closest('#iconPicker') && !e.target.closest('[data-act="iconbtn"]')){
+                picker.classList.remove('open');
+            }
+        });
+
+        document.addEventListener('change', e => {
+            const sel = e.target.closest('[data-act="kind"]');
+            if (!sel) return;
+            const block = sel.closest('.editable-block');
+            const newKind = sel.value;
+            if (newKind === 'image'){
+                block.dataset.kind = 'image';
+                block.classList.add('card');
+                pendingImgBlock = block;
+                $('blockImgInput').click();
+                return;
+            }
+            const oldIcon = block.dataset.icon || 'none';
+            const oldCustom = block.dataset.customIcon || null;
+            const _oi = block.querySelector('.block-img-wrap img'); const oldImg = _oi ? _oi.src : null;
+            const fresh = makeBlock(newKind, oldIcon !== 'none' ? oldIcon : null);
+            if (oldCustom && oldIcon === 'custom') setBlockIcon(fresh, 'custom', oldCustom);
+            const oldH = block.querySelector('h4');
+            const newH = fresh.querySelector('h4');
+            if (oldH && newH) newH.innerHTML = oldH.innerHTML;
+            const oldP = block.querySelector('p');
+            const newP = fresh.querySelector('p');
+            if (oldP && newP) newP.innerHTML = oldP.innerHTML;
+            if (oldImg) ensureBlockImage(fresh, oldImg);
+            block.replaceWith(fresh);
+            migrateBlocks();
+        });
+
+        // Blok görseli yükleme
+        $('blockImgInput').addEventListener('change', e => {
+            const f = e.target.files[0];
+            e.target.value = '';
+            if (!f || !pendingImgBlock) return;
+            const r = new FileReader();
+            r.onload = ev => {
+                ensureBlockImage(pendingImgBlock, ev.target.result);
+                migrateBlocks();
+                pendingImgBlock = null;
+            };
+            r.readAsDataURL(f);
+        });
+
+        // Özel ikon yükleme (PNG/SVG) — seçicideki "Özel yükle"den gelir
+        $('customIconInput').addEventListener('change', e => {
+            const f = e.target.files[0];
+            e.target.value = '';
+            if (!f || !pendingIconTarget) return;
+            const r = new FileReader();
+            r.onload = ev => {
+                setBlockIcon(pendingIconTarget, 'custom', ev.target.result);
+                pendingIconTarget = null;
+                const picker = $('iconPicker');
+                if (picker) picker.classList.remove('open');
+            };
+            r.readAsDataURL(f);
+        });
+
+        // Seçici alt butonları
+        $('iconClear').addEventListener('click', () => {
+            if (pickerTarget) setBlockIcon(pickerTarget, 'none');
+            $('iconPicker').classList.remove('open');
+        });
+        $('iconCustomBtn').addEventListener('click', () => {
+            pendingIconTarget = pickerTarget;
+            $('customIconInput').click();
+        });
+
+        function renumberSections(){
+            if (!$('toggleNumbers').checked) return;
+            let i = 0;
+            document.querySelectorAll('.section-title .sec-num').forEach(n => { i++; n.innerText = i; });
+            sectionCounter = i;
+        }
+
+        // Bölüm başlığı eklemek için çift tıklama kısayolu: blok alanına çift tıklayınca bölüm eklenir
+        document.querySelectorAll('[data-blocks]').forEach(area => {
+            area.addEventListener('dblclick', e => {
+                if (e.target === area){ area.appendChild(makeBlock('section')); renumberSections(); }
+            });
+        });
+
+        /* ---------- Kaydet / Yükle / Sıfırla ---------- */
+        const STORE_KEY = 'brosur-pro-v2';
+        function collectSettings(){
+            const get = id => $(id) ? $(id).value : '';
+            const getC = id => $(id) ? $(id).checked : false;
+            return {
+                cPrimary: get('cPrimary'), cAccent: get('cAccent'), cSectionBg: get('cSectionBg'),
+                cPageBg: get('cPageBg'), cColumnBg: get('cColumnBg'), cCardBg: get('cCardBg'),
+                headingFont: get('headingFont'), bodyFont: get('bodyFont'),
+                rTitleSize: get('rTitleSize'), rBodySize: get('rBodySize'), coverAlign: get('coverAlign'),
+                coverPattern: get('coverPattern'), toggleRibbon: getC('toggleRibbon'), watermark: get('watermarkInput'),
+                outer: currentOuterBorder, inner: currentInnerBorder,
+                borderColor: get('borderColorPicker'), corner: get('cornerSelect'),
+                rColRadius: get('rColRadius'), rGap: get('rGap'),
+                shape: get('globalCardShape'), secStyle: get('sectionTitleStyle'), colStyle: get('colHeaderStyle'),
+                divider: get('coverDivider'), rCardRadius: get('rCardRadius'),
+                numbers: getC('toggleNumbers'), colDesc: getC('toggleColDesc'),
+                qr: getC('toggleQr'), footerMsg: getC('toggleFooterMsg'),
+                coverTitle: get('inputCoverTitle'), coverSub: get('inputCoverSub'),
+                title: get('inputTitle'), name: get('inputName'), footerText: get('inputFooterMsg'),
+                logoSize: get('logoSizeRange'), logo: uploadedLogoSrc,
+                iconColor: get('cIconColor'), iconSize: get('rIconSize'), icons: getC('toggleIcons'),
+                html: document.querySelectorAll('[data-blocks]')[0].innerHTML + '|||SPLIT|||' + document.querySelectorAll('[data-blocks]')[1].innerHTML
+            };
+        }
+        function applySettings(s){
+            if (!s) return;
+            const set = (id, v) => { if ($(id) && v !== undefined) $(id).value = v; };
+            const setC = (id, v) => { if ($(id) && v !== undefined) $(id).checked = v; };
+            set('cPrimary', s.cPrimary); set('cAccent', s.cAccent); set('cSectionBg', s.cSectionBg);
+            set('cPageBg', s.cPageBg); set('cColumnBg', s.cColumnBg); set('cCardBg', s.cCardBg);
+            ['cPrimary','cAccent','cSectionBg','cPageBg','cColumnBg','cCardBg'].forEach(id => $(id).dispatchEvent(new Event('input')));
+            set('headingFont', s.headingFont); set('bodyFont', s.bodyFont);
+            if ($( 'headingFont')) $('headingFont').dispatchEvent(new Event('change'));
+            if ($('bodyFont')) $('bodyFont').dispatchEvent(new Event('change'));
+            set('rTitleSize', s.rTitleSize); set('rBodySize', s.rBodySize); set('coverAlign', s.coverAlign);
+            if ($('rTitleSize')) $('rTitleSize').dispatchEvent(new Event('input'));
+            if ($('rBodySize')) $('rBodySize').dispatchEvent(new Event('input'));
+            if ($('coverAlign')) $('coverAlign').dispatchEvent(new Event('change'));
+            set('coverPattern', s.coverPattern); if ($('coverPattern')) $('coverPattern').dispatchEvent(new Event('change'));
+            setC('toggleRibbon', s.toggleRibbon); if ($('toggleRibbon')) $('toggleRibbon').dispatchEvent(new Event('change'));
+            set('watermarkInput', s.watermark); if ($('watermarkInput')) $('watermarkInput').dispatchEvent(new Event('input'));
+            currentOuterBorder = s.outer || currentOuterBorder; currentInnerBorder = s.inner || currentInnerBorder;
+            set('outerBorderSelect', s.outer); set('innerBorderSelect', s.inner);
+            set('borderColorPicker', s.borderColor); if ($('borderColorPicker')) $('borderColorPicker').dispatchEvent(new Event('input'));
+            set('cornerSelect', s.corner); if ($('cornerSelect')) $('cornerSelect').dispatchEvent(new Event('change'));
+            set('rColRadius', s.rColRadius); set('rGap', s.rGap);
+            if ($('rColRadius')) $('rColRadius').dispatchEvent(new Event('input'));
+            if ($('rGap')) $('rGap').dispatchEvent(new Event('input'));
+            set('globalCardShape', s.shape); set('sectionTitleStyle', s.secStyle); set('colHeaderStyle', s.colStyle);
+            set('coverDivider', s.divider); set('rCardRadius', s.rCardRadius);
+            if ($('rCardRadius')) $('rCardRadius').dispatchEvent(new Event('input'));
+            if ($('sectionTitleStyle')) $('sectionTitleStyle').dispatchEvent(new Event('change'));
+            if ($('colHeaderStyle')) $('colHeaderStyle').dispatchEvent(new Event('change'));
+            if ($('coverDivider')) $('coverDivider').dispatchEvent(new Event('change'));
+            if ($('globalCardShape')) $('globalCardShape').dispatchEvent(new Event('change'));
+            setC('toggleNumbers', s.numbers); setC('toggleColDesc', s.colDesc);
+            setC('toggleQr', s.qr); setC('toggleFooterMsg', s.footerMsg);
+            if ($('toggleNumbers')) $('toggleNumbers').dispatchEvent(new Event('change'));
+            if ($('toggleColDesc')) $('toggleColDesc').dispatchEvent(new Event('change'));
+            if ($('toggleQr')) $('toggleQr').dispatchEvent(new Event('change'));
+            if ($('toggleFooterMsg')) $('toggleFooterMsg').dispatchEvent(new Event('change'));
+            set('inputCoverTitle', s.coverTitle); set('inputCoverSub', s.coverSub);
+            set('inputTitle', s.title); set('inputName', s.name); set('inputFooterMsg', s.footerText);
+            ['inputCoverTitle','inputCoverSub','inputTitle','inputName','inputFooterMsg'].forEach(id => { if ($(id)) $(id).dispatchEvent(new Event('input')); });
+            set('logoSizeRange', s.logoSize);
+            if (s.logo){ uploadedLogoSrc = s.logo; updateLogoElement(); }
+            if (s.html && s.html.includes('|||SPLIT|||')){
+                const parts = s.html.split('|||SPLIT|||');
+                document.querySelectorAll('[data-blocks]')[0].innerHTML = parts[0];
+                document.querySelectorAll('[data-blocks]')[1].innerHTML = parts[1] || '';
+                renumberSections();
+            }
+            set('cIconColor', s.iconColor); set('rIconSize', s.iconSize); setC('toggleIcons', s.icons !== undefined ? s.icons : true);
+            if ($('cIconColor')) $('cIconColor').dispatchEvent(new Event('input'));
+            if ($('rIconSize')) $('rIconSize').dispatchEvent(new Event('input'));
+            if ($('toggleIcons')) $('toggleIcons').dispatchEvent(new Event('change'));
+            updateContainerClasses();
+            migrateBlocks();
+        }
+
+        $('btnSave').addEventListener('click', () => {
+            localStorage.setItem(STORE_KEY, JSON.stringify(collectSettings()));
+            pushArchive('Kaydet');
+            alert('Kaydedildi ✓ Tarayıcıda saklandı. Arşive de kopya alındı.');
+        });
+        $('btnLoad').addEventListener('click', () => {
+            const raw = localStorage.getItem(STORE_KEY);
+            if (!raw){ alert('Kayıtlı tasarım bulunamadı.'); return; }
+            applySettings(JSON.parse(raw));
+            alert('Yüklendi ✓');
+        });
+        $('btnReset').addEventListener('click', () => {
+            if (confirm('Tüm değişiklikler sıfırlansın mı? Sayfa yenilenecek.')){ localStorage.removeItem(STORE_KEY); location.reload(); }
+        });
+
+        // Açılışta kayıt varsa sessizce yükle, eski blokları yeni yapıya geçir
+        migrateBlocks();
+        try {
+            const raw = localStorage.getItem(STORE_KEY) || localStorage.getItem('brosur-pro-v1');
+            if (raw) applySettings(JSON.parse(raw));
+        } catch(e){}
+
+        /* ---------- Güncelleme notları ---------- */
+        var BROSUR_NOTES = {
+            "2.3.0": [
+                "Dosya artık güncellemeleri internetten otomatik alıyor.",
+                "Başlık ikonları yenilendi: listede gördüğün simge birebir uygulanıyor.",
+                "Eski broşürler Arşiv bölümünde saklanıyor, istenirse geri dönülüyor."
+            ]
+        };
+        function showNotes(){
+            var list = BROSUR_NOTES[BROSUR_VERSION] || [];
+            if (!list.length) return;
+            $("newsVer").innerText = "v" + BROSUR_VERSION;
+            $("newsList").innerHTML = list.map(function (t) { return "<li>" + t + "</li>"; }).join("");
+            $("newsOverlay").classList.add("open");
+        }
+        function hideNotes(){
+            $("newsOverlay").classList.remove("open");
+            try { localStorage.setItem("brosur-seen-notes-ver", BROSUR_VERSION); } catch (e) {}
+        }
+
+        /* ---------- Arşiv: eski broşür kopyaları (son 10) ---------- */
+        var ARCHIVE_KEY = "brosur-archive-v1";
+        var ARCHIVE_MAX = 10;
+        function getArchive(){
+            try { return JSON.parse(localStorage.getItem(ARCHIVE_KEY) || "[]"); } catch (e) { return []; }
+        }
+        function pushArchive(label){
+            var a = getArchive();
+            a.unshift({ id: Date.now(), date: new Date().toLocaleString("tr-TR"), ver: BROSUR_VERSION, label: label || "El ile", data: collectSettings() });
+            while (a.length > ARCHIVE_MAX) a.pop();
+            try { localStorage.setItem(ARCHIVE_KEY, JSON.stringify(a)); }
+            catch (e) { a.pop(); try { localStorage.setItem(ARCHIVE_KEY, JSON.stringify(a)); } catch (e2) {} }
+            renderArchive();
+        }
+        function renderArchive(){
+            var box = $("archiveList");
+            if (!box) return;
+            var a = getArchive();
+            if (!a.length){ box.innerHTML = '<div class="hint">Henüz arşiv yok. Kaydettiğinde otomatik eklenir.</div>'; return; }
+            box.innerHTML = "";
+            a.forEach(function (it, idx) {
+                var row = document.createElement("div");
+                row.className = "arc-row";
+                var s = document.createElement("span");
+                s.textContent = it.date + " • v" + it.ver + " • " + it.label;
+                var b1 = document.createElement("button");
+                b1.type = "button"; b1.textContent = "Geri yükle"; b1.setAttribute("data-arc", "load:" + idx);
+                var b2 = document.createElement("button");
+                b2.type = "button"; b2.textContent = "Sil"; b2.setAttribute("data-arc", "del:" + idx);
+                row.appendChild(s); row.appendChild(b1); row.appendChild(b2);
+                box.appendChild(row);
+            });
+        }
+        $("btnArchiveNow").addEventListener("click", function(){ pushArchive("El ile"); alert("Arşive eklendi ✓"); });
+        $("archiveList").addEventListener("click", function (e) {
+            var b = e.target.closest("[data-arc]");
+            if (!b) return;
+            var parts = b.getAttribute("data-arc").split(":");
+            var a = getArchive();
+            var it = a[parseInt(parts[1], 10)];
+            if (!it) return;
+            if (parts[0] === "del"){
+                if (!confirm("Bu arşiv kopyası silinsin mi?")) return;
+                a.splice(parseInt(parts[1], 10), 1);
+                try { localStorage.setItem(ARCHIVE_KEY, JSON.stringify(a)); } catch (e) {}
+                renderArchive();
+            } else {
+                if (!confirm(it.date + " tarihli kopya yüklensin mi? Mevcut çalışman arşive alınır.")) return;
+                pushArchive("Geri yükleme öncesi");
+                applySettings(it.data);
+            }
+        });
+
+        try { $("verTag").innerText = "v" + BROSUR_VERSION + " • internet varken güncellemeleri otomatik alır"; } catch (e) {}
+        $("newsOk").addEventListener("click", hideNotes);
+        $("newsOverlay").addEventListener("click", function (e) { if (e.target === $("newsOverlay")) hideNotes(); });
+        $("btnNews").addEventListener("click", showNotes);
+        try {
+            var updatedFrom = localStorage.getItem("brosur-updated-from");
+            if (updatedFrom){
+                localStorage.removeItem("brosur-updated-from");
+                pushArchive("Güncelleme öncesi (v" + updatedFrom + ")");
+            }
+        } catch (e) {}
+        renderArchive();
+        var seenVer = null;
+        try { seenVer = localStorage.getItem("brosur-seen-notes-ver"); } catch (e) {}
+        if (seenVer !== BROSUR_VERSION) showNotes();
+
+        // Varsayılan border rengini CSS değişkenine işle
+        setVar('--outer-border-color', $('borderColorPicker').value);
+        setVar('--icon-color', $('cIconColor').value);
+        setVar('--icon-size', $('rIconSize').value + 'px');
+    </script>
+
+    <!-- Güncelleme notları (yeni sürümde otomatik açılır) -->
+    <div class="news-overlay no-print" id="newsOverlay">
+        <div class="news-card">
+            <h4>🎉 Broşür güncellendi<span class="news-ver" id="newsVer"></span></h4>
+            <ul id="newsList"></ul>
+            <button class="btn btn-primary" id="newsOk">Tamam, anladım</button>
+        </div>
+    </div>
+
+    <!-- İkon seçici: listedeki SVG = bloğa uygulanan SVG (birebir aynı kaynak) -->
+    <div class="icon-picker no-print" id="iconPicker">
+        <h5>Başlık ikonu seç</h5>
+        <div class="icon-grid" id="iconGrid"></div>
+        <div class="icon-picker-foot">
+            <button type="button" id="iconClear">✕ İkonsuz</button>
+            <button type="button" id="iconCustomBtn">⬆ Özel yükle…</button>
+        </div>
+    </div>
+
+</body>
+</html>
