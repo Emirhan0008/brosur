@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- BROSUR v2.3.0 -->
+<!-- BROSUR v2.3.1 -->
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
@@ -11,7 +11,7 @@
            kopya çalışır. Kurulum: dosyayı GitHub Pages'e yükle,
            aşağıdaki adresi güncelle, dosyayı yeniden dağıt.
            Kural korunur: yine tek dosya, yine çift tıkla açılır. */
-        var BROSUR_VERSION = "2.3.0";
+        var BROSUR_VERSION = "2.3.1";
         var BROSUR_URL = "https://emirhan0008.github.io/brosur/Brosur.html";
         (function () {
             if (window.__brosurBootDone) return;
@@ -46,6 +46,38 @@
                 }
                 var done = false;
                 function finish() { if (!done) { done = true; reveal(); } }
+                var pendingHtml = null, pendingVer = null;
+                /* Yeni sürüm varsa sessizce YÜKLEME, önce kullanıcıya sor */
+                function offer(html, ver){
+                    pendingHtml = html; pendingVer = ver;
+                    finish();
+                    function show(){
+                        if (document.getElementById("brosurUpdateBar")) return;
+                        try {
+                            var st = document.createElement("style");
+                            st.textContent = "@media print{#brosurUpdateBar{display:none!important}}";
+                            document.head.appendChild(st);
+                        } catch (e) {}
+                        var bar = document.createElement("div");
+                        bar.id = "brosurUpdateBar";
+                        bar.setAttribute("style", "position:fixed;left:12px;right:12px;bottom:12px;z-index:2000;background:#0f172a;color:#fff;border-radius:12px;padding:12px 14px;font-family:Arial,sans-serif;font-size:14px;line-height:1.5;box-shadow:0 10px 30px rgba(0,0,0,.4);display:flex;flex-wrap:wrap;gap:10px;align-items:center;");
+                        var t = document.createElement("div");
+                        t.style.flex = "1"; t.style.minWidth = "180px";
+                        t.textContent = "Yeni bir güncelleme var (" + ver + "). Yüklemek ister misin?";
+                        var b1 = document.createElement("button");
+                        b1.textContent = "Güncelle";
+                        b1.setAttribute("style", "background:#2563eb;color:#fff;border:none;border-radius:8px;padding:10px 18px;font-size:14px;font-weight:bold;cursor:pointer;");
+                        var b2 = document.createElement("button");
+                        b2.textContent = "Daha sonra";
+                        b2.setAttribute("style", "background:transparent;color:#cbd5e1;border:1px solid #475569;border-radius:8px;padding:10px 14px;font-size:14px;cursor:pointer;");
+                        b1.onclick = function(){ swap(pendingHtml, pendingVer); };
+                        b2.onclick = function(){ bar.remove(); };
+                        bar.appendChild(t); bar.appendChild(b1); bar.appendChild(b2);
+                        (document.body || document.documentElement).appendChild(bar);
+                    }
+                    if (document.body) show();
+                    else document.addEventListener("DOMContentLoaded", show);
+                }
                 var timeout = new Promise(function (_, rej) { setTimeout(function () { rej(new Error("t")); }, 3500); });
                 Promise.race([fetch(BROSUR_URL, { cache: "no-store" }), timeout]).then(function (res) {
                     if (!res || !res.ok) throw new Error("http");
@@ -57,11 +89,11 @@
                     if (cmp(rv, cache.ver || "0") > 0) {
                         try { localStorage.setItem("brosur-cache-ver", rv); localStorage.setItem("brosur-cache-html", txt); } catch (e) {}
                     }
-                    if (cmp(rv, BROSUR_VERSION) > 0) { swap(txt, rv); }
+                    if (cmp(rv, BROSUR_VERSION) > 0) { offer(txt, rv); }
                     else { finish(); }
                 }).catch(function () {
                     var cache = readCache();
-                    if (cache.ver && cache.html && cmp(cache.ver, BROSUR_VERSION) > 0 && looksOk(cache.html)) { swap(cache.html, cache.ver); }
+                    if (cache.ver && cache.html && cmp(cache.ver, BROSUR_VERSION) > 0 && looksOk(cache.html)) { offer(cache.html, cache.ver); }
                     else { finish(); }
                 });
             } catch (e) { reveal(); }
@@ -551,7 +583,7 @@
         .column, .cover-top-area, .cover-footer { z-index: 2; }
 
         @media print {
-            .control-panel, .block-toolbar, .add-block-btn, .no-print, .block-img-remove, .icon-picker, .news-overlay { display: none !important; }
+            .control-panel, .block-toolbar, .add-block-btn, .no-print, .block-img-remove, .icon-picker, .news-overlay, #brosurUpdateBar { display: none !important; }
             body { background: none; padding: 0; display: block; }
             .main-content { padding: 0; display: block; overflow: visible; }
             .brochure-page { box-shadow: none; margin: 0; }
@@ -570,7 +602,7 @@
     <!-- ============ KONTROL PANELİ ============ -->
     <div class="control-panel no-print">
         <h3>🎛️ Broşür Editörü Pro</h3>
-        <div class="ver-tag" id="verTag">v2.3.0 • internet varken güncellemeleri otomatik alır</div>
+        <div class="ver-tag" id="verTag">v2.3.1 • yeni sürümde sana sorar</div>
 
         <div class="btn-row">
             <button class="btn btn-primary" onclick="window.print()">🖨️ Yazdır</button>
@@ -1516,6 +1548,9 @@
 
         /* ---------- Güncelleme notları ---------- */
         var BROSUR_NOTES = {
+            "2.3.1": [
+                "Güncellemeler artık sessizce yüklenmiyor: önce sana soruluyor, istersen güncelliyorsun."
+            ],
             "2.3.0": [
                 "Dosya artık güncellemeleri internetten otomatik alıyor.",
                 "Başlık ikonları yenilendi: listede gördüğün simge birebir uygulanıyor.",
@@ -1587,7 +1622,7 @@
             }
         });
 
-        try { $("verTag").innerText = "v" + BROSUR_VERSION + " • internet varken güncellemeleri otomatik alır"; } catch (e) {}
+        try { $("verTag").innerText = "v" + BROSUR_VERSION + " • yeni sürümde sana sorar"; } catch (e) {}
         $("newsOk").addEventListener("click", hideNotes);
         $("newsOverlay").addEventListener("click", function (e) { if (e.target === $("newsOverlay")) hideNotes(); });
         $("btnNews").addEventListener("click", showNotes);
