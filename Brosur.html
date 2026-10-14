@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- BROSUR v2.3.1 -->
+<!-- BROSUR v2.4.0 -->
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
@@ -11,7 +11,7 @@
            kopya çalışır. Kurulum: dosyayı GitHub Pages'e yükle,
            aşağıdaki adresi güncelle, dosyayı yeniden dağıt.
            Kural korunur: yine tek dosya, yine çift tıkla açılır. */
-        var BROSUR_VERSION = "2.3.1";
+        var BROSUR_VERSION = "2.4.0";
         var BROSUR_URL = "https://emirhan0008.github.io/brosur/Brosur.html";
         (function () {
             if (window.__brosurBootDone) return;
@@ -138,7 +138,7 @@
         .control-panel {
             width: 312px;
             min-width: 312px;
-            background: #ffffff;
+            background: linear-gradient(180deg, #ffffff 0%, #eef2ff 100%);
             border-right: 1px solid #e2e8f0;
             padding: 14px 12px 32px;
             display: flex;
@@ -166,21 +166,33 @@
             line-height: 1.3;
         }
 
+        /* Renkli modüler kartlar: her bölüm kendi renginde */
         .panel-section {
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
+            --sc: #2563eb;
+            --sc2: #1e40af;
+            border: 1.5px solid var(--sc);
+            border-radius: 10px;
             overflow: hidden;
             background: #fff;
             flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(15,23,42,.08);
         }
+        .panel-section:nth-of-type(1) { --sc: #2563eb; --sc2: #1e40af; }
+        .panel-section:nth-of-type(2) { --sc: #7c3aed; --sc2: #5b21b6; }
+        .panel-section:nth-of-type(3) { --sc: #ea580c; --sc2: #c2410c; }
+        .panel-section:nth-of-type(4) { --sc: #059669; --sc2: #047857; }
+        .panel-section:nth-of-type(5) { --sc: #db2777; --sc2: #be123c; }
+        .panel-section:nth-of-type(6) { --sc: #0d9488; --sc2: #0f766e; }
+        .panel-section:nth-of-type(7) { --sc: #d97706; --sc2: #b45309; }
+        .panel-section:nth-of-type(8) { --sc: #4f46e5; --sc2: #3730a3; }
 
         .panel-section > summary {
             cursor: pointer;
-            padding: 8px 10px;
-            font-size: 8.5pt;
+            padding: 7px 9px;
+            font-size: 8pt;
             font-weight: 700;
-            color: #0f172a;
-            background: #f1f5f9;
+            color: #fff;
+            background: linear-gradient(135deg, var(--sc), var(--sc2));
             list-style: none;
             display: flex;
             align-items: center;
@@ -192,19 +204,19 @@
             text-overflow: ellipsis;
         }
         .panel-section > summary::-webkit-details-marker { display: none; }
-        .panel-section > summary::before { content: '▸'; color: #2563eb; font-weight: bold; transition: transform .2s; flex-shrink: 0; }
+        .panel-section > summary::before { content: '▸'; color: #fff; font-weight: bold; transition: transform .2s; flex-shrink: 0; opacity: .9; }
         .panel-section[open] > summary::before { transform: rotate(90deg); }
-        .panel-section .section-body { padding: 8px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+        .panel-section .section-body { padding: 7px; display: flex; flex-direction: column; gap: 5px; min-width: 0; }
 
         .control-panel label {
-            font-weight: 500;
+            font-weight: 600;
             color: #334155;
-            font-size: 7.5pt;
+            font-size: 7pt;
             display: flex;
             flex-direction: column;
-            gap: 3px;
+            gap: 2px;
             min-width: 0;
-            line-height: 1.35;
+            line-height: 1.3;
         }
         .label-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
         .label-row label { min-width: 0; }
@@ -213,8 +225,8 @@
         .control-panel input[type="text"],
         .control-panel textarea,
         .control-panel select {
-            padding: 6px 8px;
-            font-size: 8pt;
+            padding: 5px 7px;
+            font-size: 7.5pt;
             border: 1px solid #cbd5e1;
             border-radius: 6px;
             font-family: 'Poppins', sans-serif;
@@ -244,21 +256,22 @@
         .range-label { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
         .range-label b { color: #0f172a; background: #e0e7ff; padding: 1px 7px; border-radius: 10px; font-size: 7.5pt; white-space: nowrap; flex-shrink: 0; }
 
-        /* Toggle / checkbox satırları: zemin-metin kontrastı sabit, hizalı */
+        /* Kompakt ikonlu açma-kapama satırları */
         .checkbox-label {
             flex-direction: row !important;
             align-items: center;
             justify-content: flex-start;
-            gap: 8px;
+            gap: 6px;
             cursor: pointer;
-            font-weight: 600;
-            font-size: 7.5pt;
+            font-weight: 700;
+            font-size: 7pt;
             color: #0f172a !important;
             background: #f8fafc;
             border: 1px solid #e2e8f0;
+            border-left: 3px solid var(--sc, #2563eb);
             border-radius: 6px;
-            padding: 6px 8px;
-            line-height: 1.35;
+            padding: 4px 6px;
+            line-height: 1.3;
             width: 100%;
         }
         .checkbox-label:hover { background: #eef2ff; border-color: #c7d2fe; }
@@ -268,13 +281,14 @@
         }
         .checkbox-label span { flex: 1; min-width: 0; }
 
-        .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+        .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
         .btn {
-            padding: 7px 8px; border: none; border-radius: 6px;
-            font-family: 'Poppins', sans-serif; font-size: 8pt; font-weight: 600;
+            padding: 6px 7px; border: none; border-radius: 8px;
+            font-family: 'Poppins', sans-serif; font-size: 7.5pt; font-weight: 700;
             cursor: pointer; transition: all .2s;
             display: flex; align-items: center; justify-content: center; gap: 5px;
             line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            box-shadow: 0 1px 4px rgba(15,23,42,.12);
         }
         .btn-primary { background: #2563eb; color: #fff; }
         .btn-primary:hover { background: #1d4ed8; }
@@ -286,6 +300,10 @@
         .btn-danger:hover { background: #fee2e2; }
         .btn-success { background: #059669; color: #fff; }
         .btn-success:hover { background: #047857; }
+        .btn-teal { background: linear-gradient(135deg, #14b8a6, #0d9488); color: #fff; }
+        .btn-teal:hover { background: #0f766e; }
+        .btn-purple { background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: #fff; }
+        .btn-purple:hover { background: #6d28d9; }
         .btn-full { grid-column: 1 / -1; }
 
         .hint {
@@ -602,30 +620,29 @@
     <!-- ============ KONTROL PANELİ ============ -->
     <div class="control-panel no-print">
         <h3>🎛️ Broşür Editörü Pro</h3>
-        <div class="ver-tag" id="verTag">v2.3.1 • yeni sürümde sana sorar</div>
+        <div class="ver-tag" id="verTag">v2.4.0 • sorarak güncellenir</div>
 
         <div class="btn-row">
-            <button class="btn btn-primary" onclick="window.print()">🖨️ Yazdır</button>
-            <button class="btn btn-dark" id="btnSave">💾 Kaydet</button>
-            <button class="btn btn-light" id="btnLoad">📂 Yükle</button>
-            <button class="btn btn-danger" id="btnReset">↺ Sıfırla</button>
-            <button class="btn btn-light btn-full" id="btnNews">✨ Yenilikler</button>
+            <button class="btn btn-primary" onclick="window.print()" title="Yazdır">🖨️ Yazdır</button>
+            <button class="btn btn-dark" id="btnSave" title="Kaydet">💾 Kaydet</button>
+            <button class="btn btn-teal" id="btnLoad" title="Yükle">📂 Yükle</button>
+            <button class="btn btn-danger" id="btnReset" title="Sıfırla">↺ Sıfırla</button>
+            <button class="btn btn-purple btn-full" id="btnNews" title="Yenilikler">✨ Yenilikler</button>
         </div>
-        <div class="hint">💡 Broşürdeki <b>tüm başlık ve metinlere doğrudan tıklayıp yazabilirsin.</b> Her bloğun üzerine gelince <b>↑ ↓ ⧉ 🗑</b> taşıma / kopyalama / silme araçları çıkar. Yaptıkların <b>Kaydet</b> ile tarayıcıya kaydedilir.</div>
 
         <!-- TEMA -->
         <details class="panel-section" open>
             <summary>🎨 Tema & Renkler</summary>
             <div class="section-body">
                 <div class="color-row">
-                    <label>Ana Renk<input type="color" id="cPrimary" value="#1e3a8a"></label>
-                    <label>Vurgu Rengi<input type="color" id="cAccent" value="#2563eb"></label>
-                    <label>Başlık Altı Zemin<input type="color" id="cSectionBg" value="#f8fafc"></label>
-                    <label>Sayfa Zemini<input type="color" id="cPageBg" value="#ffffff"></label>
-                    <label>Sütun Zemini<input type="color" id="cColumnBg" value="#ffffff"></label>
-                    <label>Kart Zemini<input type="color" id="cCardBg" value="#ffffff"></label>
+                    <label title="Ana Renk">Ana<input type="color" id="cPrimary" value="#1e3a8a"></label>
+                    <label title="Vurgu Rengi">Vurgu<input type="color" id="cAccent" value="#2563eb"></label>
+                    <label title="Bölüm Başlığı Zemini">Bölüm<input type="color" id="cSectionBg" value="#f8fafc"></label>
+                    <label title="Sayfa Zemini">Sayfa<input type="color" id="cPageBg" value="#ffffff"></label>
+                    <label title="Sütun Zemini">Sütun<input type="color" id="cColumnBg" value="#ffffff"></label>
+                    <label title="Kart Zemini">Kart<input type="color" id="cCardBg" value="#ffffff"></label>
                 </div>
-                <label>Kapak Deseni
+                <label>🎭 Desen
                     <select id="coverPattern">
                         <option value="">Düz Beyaz</option>
                         <option value="cover-gradient">Açık Mavi Geçiş</option>
@@ -633,8 +650,8 @@
                         <option value="cover-lines">İnce Çizgili</option>
                     </select>
                 </label>
-                <label class="checkbox-label"><input type="checkbox" id="toggleRibbon"><span>Üst şerit (banner) göster</span></label>
-                <label>Filigran Yazısı (boş = kapalı)<input type="text" id="watermarkInput" placeholder="örn. REHBERLİK"></label>
+                <label class="checkbox-label"><input type="checkbox" id="toggleRibbon"><span>🎗 Üst şerit</span></label>
+                <label title="Filigran Yazısı (boş = kapalı)">Filigran<input type="text" id="watermarkInput" placeholder="örn. REHBERLİK"></label>
             </div>
         </details>
 
@@ -643,7 +660,7 @@
             <summary>✏️ Yazı Tipleri & Boyutlar</summary>
             <div class="section-body">
                 <div class="label-row">
-                    <label>Başlık Fontu
+                    <label>🔤 Başlık
                         <select id="headingFont">
                             <option value="'Playfair Display', serif">Playfair (Klasik)</option>
                             <option value="'Poppins', sans-serif">Poppins (Modern)</option>
@@ -652,7 +669,7 @@
                             <option value="'Caveat', cursive">Caveat (El Yazısı)</option>
                         </select>
                     </label>
-                    <label>Gövde Fontu
+                    <label>📄 Gövde
                         <select id="bodyFont">
                             <option value="'Poppins', sans-serif">Poppins</option>
                             <option value="'Roboto', sans-serif">Roboto</option>
@@ -660,11 +677,11 @@
                         </select>
                     </label>
                 </div>
-                <label><span class="range-label">Kapak Başlık Boyutu <b id="vTitleSize">19pt</b></span>
+                <label><span class="range-label">📏 Başlık <b id="vTitleSize">19pt</b></span>
                     <input type="range" id="rTitleSize" min="14" max="30" value="19"></label>
-                <label><span class="range-label">Gövde Yazı Boyutu <b id="vBodySize">8pt</b></span>
+                <label><span class="range-label">📏 Yazı <b id="vBodySize">8pt</b></span>
                     <input type="range" id="rBodySize" min="6" max="12" value="8" step="0.5"></label>
-                <label>Kapak Başlık Hizası
+                <label>↔️ Hiza
                     <select id="coverAlign">
                         <option value="center">Ortalı</option>
                         <option value="left">Sola</option>
@@ -678,7 +695,7 @@
         <details class="panel-section" open>
             <summary>🖼️ Çerçeve & Süsler</summary>
             <div class="section-body">
-                <label>Dış Sayfa Süsü
+                <label>🖼️ Dış Süs
                     <select id="outerBorderSelect">
                         <option value="outer-nakisli">Nakışlı Çift Çizgi</option>
                         <option value="outer-classic">Klasik Çerçeve</option>
@@ -689,8 +706,8 @@
                         <option value="outer-none">Süssüz / Dışsız</option>
                     </select>
                 </label>
-                <label>Çerçeve Rengi<input type="color" id="borderColorPicker" value="#1e3a8a"></label>
-                <label>Köşe Süsü
+                <label>🎨 Renk<input type="color" id="borderColorPicker" value="#1e3a8a"></label>
+                <label>✦ Köşe
                     <select id="cornerSelect">
                         <option value="">Yok</option>
                         <option value="✦">✦ Yıldız</option>
@@ -700,7 +717,7 @@
                         <option value="•">• Nokta</option>
                     </select>
                 </label>
-                <label>İç Sütun Çerçevesi
+                <label>▦ Sütun Çerçevesi
                     <select id="innerBorderSelect">
                         <option value="inner-classic">Klasik Çizgi</option>
                         <option value="inner-modern">Modern Mavi</option>
@@ -710,9 +727,9 @@
                         <option value="inner-none">Çerçevesiz</option>
                     </select>
                 </label>
-                <label><span class="range-label">Sütun Köşe Yuvarlaklığı <b id="vColRadius">8px</b></span>
+                <label><span class="range-label">⭕ Sütun Oval <b id="vColRadius">8px</b></span>
                     <input type="range" id="rColRadius" min="0" max="20" value="8"></label>
-                <label><span class="range-label">Sayfa Boşluğu / Sütun Aralığı <b id="vGap">6mm</b></span>
+                <label><span class="range-label">↔️ Boşluk <b id="vGap">6mm</b></span>
                     <input type="range" id="rGap" min="2" max="12" value="6"></label>
             </div>
         </details>
@@ -721,7 +738,7 @@
         <details class="panel-section" open>
             <summary>🧱 İçerik Blokları & Şekiller</summary>
             <div class="section-body">
-                <label>Varsayılan Kart Şekli
+                <label>🧱 Kart Şekli
                     <select id="globalCardShape">
                         <option value="classic">Klasik (ince çizgi)</option>
                         <option value="modern">Modern (kalın sol şerit)</option>
@@ -733,7 +750,7 @@
                         <option value="bold">Kalın Çerçeveli</option>
                     </select>
                 </label>
-                <label>Bölüm Başlığı Stili
+                <label>🔖 Bölüm Stili
                     <select id="sectionTitleStyle">
                         <option value="">Sol Şeritli (varsayılan)</option>
                         <option value="style-pill">Hap / Rozet</option>
@@ -742,7 +759,7 @@
                         <option value="style-minimal">Minimal</option>
                     </select>
                 </label>
-                <label>Sütun Başlığı Stili
+                <label>📰 Sütun Stili
                     <select id="colHeaderStyle">
                         <option value="">Alt Çizgili (varsayılan)</option>
                         <option value="style-pill">Hap / Rozet</option>
@@ -751,7 +768,7 @@
                         <option value="style-double">Çift Çizgili</option>
                     </select>
                 </label>
-                <label>Kapak Ayırıcı Çizgi
+                <label>➖ Ayırıcı
                     <select id="coverDivider">
                         <option value="">Gradyan Çizgi</option>
                         <option value="dots">• • • Noktalar</option>
@@ -760,15 +777,14 @@
                         <option value="none">Gizle</option>
                     </select>
                 </label>
-                <label><span class="range-label">Kart Köşe Yuvarlaklığı <b id="vCardRadius">6px</b></span>
+                <label><span class="range-label">⭕ Kart Oval <b id="vCardRadius">6px</b></span>
                     <input type="range" id="rCardRadius" min="0" max="18" value="6"></label>
-                <label class="checkbox-label"><input type="checkbox" id="toggleNumbers" checked><span>Bölüm numaralarını göster (1. 2. 3.)</span></label>
-                <label class="checkbox-label"><input type="checkbox" id="toggleColDesc" checked><span>Sütun alt açıklamalarını göster</span></label>
+                <label class="checkbox-label"><input type="checkbox" id="toggleNumbers" checked><span>🔢 Numaralar</span></label>
+                <label class="checkbox-label"><input type="checkbox" id="toggleColDesc" checked><span>📝 Sütun açıklaması</span></label>
                 <div class="btn-row">
-                    <button class="btn btn-light" data-addcol="0">＋ 2.Sütuna Blok</button>
-                    <button class="btn btn-light" data-addcol="1">＋ 3.Sütuna Blok</button>
+                    <button class="btn btn-light" data-addcol="0" title="2. sütuna blok ekle">＋ Blok 2</button>
+                    <button class="btn btn-light" data-addcol="1" title="3. sütuna blok ekle">＋ Blok 3</button>
                 </div>
-                <div class="hint">Blok türleri: <b>Bilgi / Liste / Uyarı / Başarı / Alıntı / Görsel.</b> Tür menüsünden değiştir, ↑↓ ile sırala. İkon için <b>◉</b> butonu gerçek SVG listesini açar.</div>
             </div>
         </details>
 
@@ -777,20 +793,19 @@
             <summary>🔣 İkon & Blok Görselleri</summary>
             <div class="section-body">
                 <div class="label-row">
-                    <label>İkon Rengi<input type="color" id="cIconColor" value="#2563eb"></label>
-                    <label><span class="range-label">İkon Boyutu <b id="vIconSize">20px</b></span>
+                    <label>🎨 Renk<input type="color" id="cIconColor" value="#2563eb"></label>
+                    <label><span class="range-label">📏 Boyut <b id="vIconSize">20px</b></span>
                         <input type="range" id="rIconSize" min="14" max="32" value="20"></label>
                 </div>
-                <label class="checkbox-label"><input type="checkbox" id="toggleIcons" checked><span>Başlıklardaki ikonları göster</span></label>
+                <label class="checkbox-label"><input type="checkbox" id="toggleIcons" checked><span>🔣 Blok ikonları</span></label>
                 <div class="btn-row">
-                    <button class="btn btn-light" data-addcol="0" data-kind="image">🖼️ Görsel (2.sütun)</button>
-                    <button class="btn btn-light" data-addcol="1" data-kind="image">🖼️ Görsel (3.sütun)</button>
+                    <button class="btn btn-light" data-addcol="0" data-kind="image" title="2. sütuna görsel blok">🖼️ 2</button>
+                    <button class="btn btn-light" data-addcol="1" data-kind="image" title="3. sütuna görsel blok">🖼️ 3</button>
                 </div>
                 <div class="btn-row">
-                    <button class="btn btn-light" data-addcol="0" data-kind="section">＋ Bölüm Başlığı (2)</button>
-                    <button class="btn btn-light" data-addcol="1" data-kind="section">＋ Bölüm Başlığı (3)</button>
+                    <button class="btn btn-light" data-addcol="0" data-kind="section" title="2. sütuna bölüm başlığı">§ 2</button>
+                    <button class="btn btn-light" data-addcol="1" data-kind="section" title="3. sütuna bölüm başlığı">§ 3</button>
                 </div>
-                <div class="hint">Her bloğun araç çubuğundaki <b>◉</b> butonuna bas: açılan listede <b>gerçek SVG'leri görürsün</b>, tıkladığın birebir bloğa uygulanır. <b>🖼</b> bloğun üstüne opsiyonel görsel alanı ekler.</div>
                 <input type="file" id="blockImgInput" accept="image/*,image/svg+xml" style="display:none">
                 <input type="file" id="customIconInput" accept="image/*,image/svg+xml" style="display:none">
             </div>
@@ -800,9 +815,8 @@
         <details class="panel-section">
             <summary>🗂️ Arşiv (eski broşürler)</summary>
             <div class="section-body">
-                <button class="btn btn-light btn-full" id="btnArchiveNow">📥 Şimdi arşive ekle</button>
+                <button class="btn btn-light btn-full" id="btnArchiveNow" title="Şimdi arşive ekle">📥 Arşive ekle</button>
                 <div id="archiveList" style="display:flex;flex-direction:column;gap:6px"></div>
-                <div class="hint">Her <b>Kaydet</b>'te otomatik kopya alınır (son 10 saklanır). Güncellemeden önce de kopya saklanır, <b>Geri yükle</b> ile dönebilirsin.</div>
             </div>
         </details>
 
@@ -810,11 +824,11 @@
         <details class="panel-section">
             <summary>🖼️ Logo & QR Kod</summary>
             <div class="section-body">
-                <label>Kurum Logosu<input type="file" id="logoInput" accept="image/*"></label>
-                <label><span class="range-label">Logo Boyutu <b id="sizeVal">60px</b></span>
+                <label>🏫 Logo<input type="file" id="logoInput" accept="image/*"></label>
+                <label><span class="range-label">📏 Boyut <b id="sizeVal">60px</b></span>
                     <input type="range" id="logoSizeRange" min="30" max="350" value="60"></label>
-                <label>QR Kod Görseli<input type="file" id="qrInput" accept="image/*"></label>
-                <label class="checkbox-label"><input type="checkbox" id="toggleQr" checked><span>QR Kodu Göster</span></label>
+                <label>🔳 QR Görsel<input type="file" id="qrInput" accept="image/*"></label>
+                <label class="checkbox-label"><input type="checkbox" id="toggleQr" checked><span>🔳 QR Kod</span></label>
             </div>
         </details>
 
@@ -822,12 +836,12 @@
         <details class="panel-section">
             <summary>📝 Kapak & Alt Bilgi Metinleri</summary>
             <div class="section-body">
-                <label>Kapak Başlığı<textarea id="inputCoverTitle">Sınav Stresiyle Baş Etme Rehberi</textarea></label>
-                <label>Kapak Alt Açıklaması<textarea id="inputCoverSub">Kaygıyı Yönet, Performansını Zirveye Taşı! Zihinsel ve fiziksel dengeyi kurma rehberi.</textarea></label>
-                <label>Unvan / Görev<input type="text" id="inputTitle" value="Psikolojik Danışman ve Rehber Öğretmen"></label>
-                <label>İsim Soyisim<input type="text" id="inputName" value="Ayşegül GENÇ"></label>
-                <label>Alt Mesaj (3. sütun)<input type="text" id="inputFooterMsg" value="Başarılar Dileriz! 🌟"></label>
-                <label class="checkbox-label"><input type="checkbox" id="toggleFooterMsg" checked><span>Alt mesajı göster</span></label>
+                <label>📌 Başlık<textarea id="inputCoverTitle">Sınav Stresiyle Baş Etme Rehberi</textarea></label>
+                <label>💬 Alt yazı<textarea id="inputCoverSub">Kaygıyı Yönet, Performansını Zirveye Taşı! Zihinsel ve fiziksel dengeyi kurma rehberi.</textarea></label>
+                <label>👤 Unvan<input type="text" id="inputTitle" value="Psikolojik Danışman ve Rehber Öğretmen"></label>
+                <label>✍️ İsim<input type="text" id="inputName" value="Ayşegül GENÇ"></label>
+                <label>🌟 Alt mesaj<input type="text" id="inputFooterMsg" value="Başarılar Dileriz! 🌟"></label>
+                <label class="checkbox-label"><input type="checkbox" id="toggleFooterMsg" checked><span>🌟 Alt mesaj</span></label>
             </div>
         </details>
     </div>
@@ -1548,6 +1562,9 @@
 
         /* ---------- Güncelleme notları ---------- */
         var BROSUR_NOTES = {
+            "2.4.0": [
+                "Sol panel yenilendi: renkli modüller, ikonlu kısa başlıklar, daha kompakt görünüm."
+            ],
             "2.3.1": [
                 "Güncellemeler artık sessizce yüklenmiyor: önce sana soruluyor, istersen güncelliyorsun."
             ],
@@ -1622,7 +1639,7 @@
             }
         });
 
-        try { $("verTag").innerText = "v" + BROSUR_VERSION + " • yeni sürümde sana sorar"; } catch (e) {}
+        try { $("verTag").innerText = "v" + BROSUR_VERSION + " • sorarak güncellenir"; } catch (e) {}
         $("newsOk").addEventListener("click", hideNotes);
         $("newsOverlay").addEventListener("click", function (e) { if (e.target === $("newsOverlay")) hideNotes(); });
         $("btnNews").addEventListener("click", showNotes);
