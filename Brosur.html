@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- BROSUR v2.4.4 -->
+<!-- BROSUR v2.4.5 -->
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
@@ -12,7 +12,7 @@
            kopya çalışır. Kurulum: dosyayı GitHub Pages'e yükle,
            aşağıdaki adresi güncelle, dosyayı yeniden dağıt.
            Kural korunur: yine tek dosya, yine çift tıkla açılır. */
-        var BROSUR_VERSION = "2.4.4";
+        var BROSUR_VERSION = "2.4.5";
         var BROSUR_URL = "https://emirhan0008.github.io/brosur/Brosur.html";
         (function () {
             if (window.__brosurBootDone) return;
@@ -645,7 +645,7 @@
     <!-- ============ KONTROL PANELİ ============ -->
     <div class="control-panel no-print">
         <h3>🎛️ Broşür Editörü Pro</h3>
-        <div class="ver-tag" id="verTag">v2.4.4</div>
+        <div class="ver-tag" id="verTag">v2.4.5</div>
 
         <div class="btn-row">
             <button class="btn btn-primary" onclick="window.print()" title="Yazdır">🖨️ Yazdır</button>
@@ -1229,12 +1229,50 @@
             document.querySelectorAll('.col-desc').forEach(n => n.style.display = e.target.checked ? 'block' : 'none');
         });
 
+        /* ---------- Görsel kucultme: localStorage kotasina sigsin ---------- */
+        function shrinkImage(dataUrl, maxW, maxH, cb){
+            var img = new Image();
+            var done = false;
+            function finish(v){ if (done) return; done = true; cb(v); }
+            img.onload = function () {
+                var w = img.naturalWidth, h = img.naturalHeight;
+                if (!w || !h) { finish(dataUrl); return; }
+                if (w <= maxW && h <= maxH) { finish(dataUrl); return; }
+                var r = Math.min(maxW / w, maxH / h);
+                var cw = Math.max(1, Math.round(w * r)), ch = Math.max(1, Math.round(h * r));
+                var c = document.createElement('canvas');
+                c.width = cw; c.height = ch;
+                try {
+                    c.getContext('2d').drawImage(img, 0, 0, cw, ch);
+                    var png = c.toDataURL('image/png');
+                    if (png.length > 500000) png = c.toDataURL('image/jpeg', 0.88);
+                    finish(png);
+                } catch (e) { finish(dataUrl); }
+            };
+            img.onerror = function () { finish(dataUrl); };
+            img.src = dataUrl;
+        }
+        function readImage(file, maxW, maxH, cb){
+            var r = new FileReader();
+            r.onload = function (ev) {
+                var raw = ev.target.result;
+                shrinkImage(raw, maxW, maxH, function (small) {
+                    cb(small, raw.length - small.length);
+                });
+            };
+            r.onerror = function () { cb(null, 0); };
+            r.readAsDataURL(file);
+        }
+
         /* ---------- Logo / QR ---------- */
         $('logoInput').addEventListener('change', e => {
             const f = e.target.files[0]; if (!f) return;
-            const r = new FileReader();
-            r.onload = ev => { uploadedLogoSrc = ev.target.result; updateLogoElement(); };
-            r.readAsDataURL(f);
+            readImage(f, 1000, 500, function (src, saved) {
+                if (!src) { showToast('Logo okunamadı. Başka bir dosya dene.'); return; }
+                uploadedLogoSrc = src;
+                updateLogoElement();
+                if (saved > 20000) showToast('Logo küçültüldü (dosya çok büyüktü).');
+            });
         });
         $('logoSizeRange').addEventListener('input', e => { $('sizeVal').innerText = e.target.value + 'px'; updateLogoElement(); });
         function updateLogoElement(){
@@ -1250,9 +1288,13 @@
         }
         $('qrInput').addEventListener('change', e => {
             const f = e.target.files[0]; if (!f) return;
-            const r = new FileReader();
-            r.onload = ev => { $('qrContainer').innerHTML = `<img src="${ev.target.result}" alt="QR">`; qrHasImage = true; refreshQrVisibility(); };
-            r.readAsDataURL(f);
+            readImage(f, 700, 700, function (src, saved) {
+                if (!src) { showToast('QR okunamadı. Başka bir dosya dene.'); return; }
+                $('qrContainer').innerHTML = `<img src="${src}" alt="QR">`;
+                qrHasImage = true;
+                refreshQrVisibility();
+                if (saved > 20000) showToast('QR küçültüldü (dosya çok büyüktü).');
+            });
         });
         $('toggleQr').addEventListener('change', refreshQrVisibility);
 
@@ -1480,13 +1522,13 @@
             const f = e.target.files[0];
             e.target.value = '';
             if (!f || !pendingImgBlock) return;
-            const r = new FileReader();
-            r.onload = ev => {
-                ensureBlockImage(pendingImgBlock, ev.target.result);
+            readImage(f, 1400, 1000, function (src, saved) {
+                if (!src) { showToast('Görsel okunamadı.'); return; }
+                ensureBlockImage(pendingImgBlock, src);
                 migrateBlocks();
                 pendingImgBlock = null;
-            };
-            r.readAsDataURL(f);
+                if (saved > 20000) showToast('Görsel küçültüldü (dosya çok büyüktü).');
+            });
         });
 
         // Özel ikon yükleme (PNG/SVG) — seçicideki "Özel yükle"den gelir
@@ -1530,6 +1572,14 @@
 
         /* ---------- Kaydet / Yükle / Sıfırla ---------- */
         const STORE_KEY = 'brosur-pro-v2';
+        const LOGO_KEY = 'brosur-logo-v1';
+        const QR_KEY = 'brosur-qr-v1';
+        function saveImage(key, val){
+            try { localStorage.setItem(key, val); return true; } catch (e) { return false; }
+        }
+        function loadImage(key){
+            try { return localStorage.getItem(key); } catch (e) { return null; }
+        }
         function collectSettings(){
             const get = id => $(id) ? $(id).value : '';
             const getC = id => $(id) ? $(id).checked : false;
@@ -1548,7 +1598,7 @@
                 qr: getC('toggleQr'), footerMsg: getC('toggleFooterMsg'),
                 coverTitle: get('inputCoverTitle'), coverSub: get('inputCoverSub'),
                 title: get('inputTitle'), name: get('inputName'), footerText: get('inputFooterMsg'),
-                logoSize: get('logoSizeRange'), logo: uploadedLogoSrc,
+                logoSize: get('logoSizeRange'),
                 iconColor: get('cIconColor'), iconSize: get('rIconSize'), icons: getC('toggleIcons'),
                 html: document.querySelectorAll('[data-blocks]')[0].innerHTML + '|||SPLIT|||' + document.querySelectorAll('[data-blocks]')[1].innerHTML
             };
@@ -1594,7 +1644,7 @@
             set('inputTitle', s.title); set('inputName', s.name); set('inputFooterMsg', s.footerText);
             ['inputCoverTitle','inputCoverSub','inputTitle','inputName','inputFooterMsg'].forEach(id => { if ($(id)) $(id).dispatchEvent(new Event('input')); });
             set('logoSizeRange', s.logoSize);
-            if (s.logo){ uploadedLogoSrc = s.logo; updateLogoElement(); }
+            if (s.logo){ uploadedLogoSrc = s.logo; saveImage(LOGO_KEY, s.logo); }
             if (s.html && s.html.includes('|||SPLIT|||')){
                 const parts = s.html.split('|||SPLIT|||');
                 document.querySelectorAll('[data-blocks]')[0].innerHTML = parts[0];
@@ -1613,11 +1663,14 @@
             try {
                 localStorage.setItem(STORE_KEY, JSON.stringify(collectSettings()));
             } catch (e) {
-                showToast('Kaydedilemedi: tarayıcı saklama alanı dolu. Büyük görselleri azaltıp tekrar dene.');
+                showToast('Kaydedilemedi: tarayıcı saklama alanı dolu. Bloklardaki büyük görselleri küçültüp tekrar dene.');
                 return;
             }
+            var logoOk = true;
+            if (uploadedLogoSrc) logoOk = saveImage(LOGO_KEY, uploadedLogoSrc);
+            if (qrHasImage) saveImage(QR_KEY, $('qrContainer').querySelector('img') ? $('qrContainer').querySelector('img').src : '');
             pushArchive('Kaydet');
-            showToast('Kaydedildi ✓ Arşive de kopya alındı.', [
+            showToast(logoOk ? 'Kaydedildi ✓ Arşive de kopya alındı.' : 'Tasarım kaydedildi ama logo sığmadı. Logoyu küçültüp tekrar dene.', [
                 { label: '📄 PDF', fn: openPdfDialog },
                 { label: 'Kapat', ghost: true }
             ]);
@@ -1676,8 +1729,20 @@
             if (raw) applySettings(JSON.parse(raw));
         } catch(e){ try { localStorage.removeItem(STORE_KEY); } catch (e2) {} }
 
+        // Logo ve QR ayrı anahtarlarda saklanır: buyuk gorsel tasarim kaydini bozmasin
+        try {
+            const lg = loadImage(LOGO_KEY);
+            if (lg){ uploadedLogoSrc = lg; updateLogoElement(); }
+            const qr = loadImage(QR_KEY);
+            if (qr){ $('qrContainer').innerHTML = '<img src="' + qr + '" alt="QR">'; qrHasImage = true; refreshQrVisibility(); }
+        } catch (e) {}
+
         /* ---------- Güncelleme notları ---------- */
         var BROSUR_NOTES = {
+            "2.4.5": [
+                "Logo/QR sorunu düzeltildi: büyük görseller otomatik küçültülüyor ve kayıt artık bozulmuyor.",
+                "Logo ve QR artık tasarımdan ayrı saklanıyor, dosya yeniden açıldığında yerinde kalıyor."
+            ],
             "2.4.4": [
                 "PDF dışa aktarma eklendi: Kaydet'e basınca PDF seçeneği çıkıyor, ayrıca 📄 PDF butonu var.",
                 "Yazdırma çıktısı A4 yatay tek sayfaya tam oturuyor, renkler PDF'e aktarılıyor."
