@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- BROSUR v2.4.3 -->
+<!-- BROSUR v2.4.4 -->
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
@@ -12,7 +12,7 @@
            kopya çalışır. Kurulum: dosyayı GitHub Pages'e yükle,
            aşağıdaki adresi güncelle, dosyayı yeniden dağıt.
            Kural korunur: yine tek dosya, yine çift tıkla açılır. */
-        var BROSUR_VERSION = "2.4.3";
+        var BROSUR_VERSION = "2.4.4";
         var BROSUR_URL = "https://emirhan0008.github.io/brosur/Brosur.html";
         (function () {
             if (window.__brosurBootDone) return;
@@ -301,6 +301,8 @@
         .btn-danger:hover { background: #fee2e2; }
         .btn-success { background: #059669; color: #fff; }
         .btn-success:hover { background: #047857; }
+        .btn-red { background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; }
+        .btn-red:hover { background: #b91c1c; }
         .btn-teal { background: linear-gradient(135deg, #14b8a6, #0d9488); color: #fff; }
         .btn-teal:hover { background: #0f766e; }
         .btn-purple { background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: #fff; }
@@ -329,6 +331,26 @@
         .arc-row span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .arc-row button { flex-shrink: 0; border: 1px solid #cbd5e1; background: #fff; border-radius: 5px; font-size: 7pt; font-weight: 600; padding: 3px 7px; cursor: pointer; font-family: 'Poppins',sans-serif; color: #0f172a; }
         .arc-row button:hover { background: #eef2ff; border-color: #93c5fd; }
+
+        /* Toast bildirimi */
+        .toast-box {
+            position: fixed; right: 14px; bottom: 14px; z-index: 2000;
+            background: #0f172a; color: #fff; border-radius: 12px; padding: 12px 14px;
+            font-family: 'Poppins', sans-serif; font-size: 12px; line-height: 1.5;
+            box-shadow: 0 12px 30px rgba(0,0,0,.35); display: none;
+            align-items: center; gap: 12px; max-width: 360px;
+            border: 1px solid #334155;
+        }
+        .toast-box.open { display: flex; }
+        .toast-box .t-msg { flex: 1; min-width: 0; }
+        .toast-box .t-msg b { color: #93c5fd; }
+        .toast-box .t-actions { display: flex; gap: 6px; flex-shrink: 0; }
+        .toast-box button {
+            border: none; border-radius: 8px; padding: 8px 12px; font-size: 12px;
+            font-weight: 700; cursor: pointer; font-family: 'Poppins', sans-serif;
+            background: #ef4444; color: #fff; white-space: nowrap;
+        }
+        .toast-box button.ghost { background: transparent; color: #cbd5e1; border: 1px solid #475569; }
 
         /* ============ ANA İÇERİK ============ */
         .main-content { flex: 1; display: flex; justify-content: center; align-items: flex-start; padding: 30px; overflow: auto; }
@@ -602,13 +624,15 @@
         .column, .cover-top-area, .cover-footer { z-index: 2; }
 
         @media print {
-            .control-panel, .block-toolbar, .add-block-btn, .no-print, .block-img-remove, .icon-picker, .news-overlay, #brosurUpdateBar { display: none !important; }
-            body { background: none; padding: 0; display: block; }
-            .main-content { padding: 0; display: block; overflow: visible; }
-            .brochure-page { box-shadow: none; margin: 0; }
+            .control-panel, .block-toolbar, .add-block-btn, .no-print, .block-img-remove, .icon-picker, .news-overlay, .toast-box, #brosurUpdateBar { display: none !important; }
+            html, body { width: 297mm; height: 210mm; min-height: 0; max-height: 210mm; overflow: hidden; background: #fff; }
+            body { background: none; padding: 0; display: block; min-height: 0; }
+            .main-content { padding: 0; display: block; overflow: hidden; height: 210mm; }
+            .brochure-page { box-shadow: none; margin: 0; width: 297mm; height: 210mm; }
             .column { overflow: hidden; }
             .editable-block:hover { outline: none; }
             [contenteditable="true"]:hover { background: none; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
         @media (max-width: 1100px) {
             body { flex-direction: column; }
@@ -621,11 +645,12 @@
     <!-- ============ KONTROL PANELİ ============ -->
     <div class="control-panel no-print">
         <h3>🎛️ Broşür Editörü Pro</h3>
-        <div class="ver-tag" id="verTag">v2.4.3</div>
+        <div class="ver-tag" id="verTag">v2.4.4</div>
 
         <div class="btn-row">
             <button class="btn btn-primary" onclick="window.print()" title="Yazdır">🖨️ Yazdır</button>
             <button class="btn btn-dark" id="btnSave" title="Kaydet">💾 Kaydet</button>
+            <button class="btn btn-red" id="btnPdf" title="PDF olarak kaydet">📄 PDF</button>
             <button class="btn btn-teal" id="btnLoad" title="Yükle">📂 Yükle</button>
             <button class="btn btn-danger" id="btnReset" title="Sıfırla">↺ Sıfırla</button>
             <button class="btn btn-purple btn-full" id="btnNews" title="Yenilikler">✨ Yenilikler</button>
@@ -1019,6 +1044,26 @@
             <button type="button" id="iconClear">✕ İkonsuz</button>
             <button type="button" id="iconCustomBtn">⬆ Özel yükle…</button>
         </div>
+    </div>
+
+    <!-- PDF dışa aktarma penceresi -->
+    <div class="news-overlay no-print" id="pdfOverlay">
+        <div class="news-card">
+            <h4>📄 PDF olarak kaydet</h4>
+            <ul>
+                <li>Açılan pencerede <b>Hedef</b> → <b>PDF olarak kaydet</b> seç.</li>
+                <li>Boyut <b>A4</b>, yön <b>Yatay</b> olmalı (ayarlı gelir).</li>
+                <li><b>Kaydet</b>'e basınca dosya bilgisayarına iner.</li>
+            </ul>
+            <button class="btn btn-red" id="pdfStart">🖨️ Yazdırma penceresini aç</button>
+            <button class="btn btn-light" id="pdfClose" style="margin-top:6px">Kapat</button>
+        </div>
+    </div>
+
+    <!-- Bildirim (toast) -->
+    <div class="toast-box no-print" id="toastBox">
+        <div class="t-msg" id="toastMsg"></div>
+        <div class="t-actions" id="toastActions"></div>
     </div>
 
     <script>
@@ -1568,18 +1613,57 @@
             try {
                 localStorage.setItem(STORE_KEY, JSON.stringify(collectSettings()));
             } catch (e) {
-                alert('Kaydedilemedi: tarayıcı saklama alanı dolu. Büyük görselleri azaltıp tekrar dene.');
+                showToast('Kaydedilemedi: tarayıcı saklama alanı dolu. Büyük görselleri azaltıp tekrar dene.');
                 return;
             }
             pushArchive('Kaydet');
-            alert('Kaydedildi ✓ Tarayıcıda saklandı. Arşive de kopya alındı.');
+            showToast('Kaydedildi ✓ Arşive de kopya alındı.', [
+                { label: '📄 PDF', fn: openPdfDialog },
+                { label: 'Kapat', ghost: true }
+            ]);
         });
+        /* ---------- Bildirim (toast) ---------- */
+        var toastTimer = null;
+        function showToast(msg, actions){
+            const box = $('toastBox');
+            if (!box) return;
+            $('toastMsg').innerHTML = msg;
+            const wrap = $('toastActions');
+            wrap.innerHTML = '';
+            (actions || []).forEach(function (a) {
+                const b = document.createElement('button');
+                b.type = 'button';
+                b.textContent = a.label;
+                if (a.ghost) b.className = 'ghost';
+                b.addEventListener('click', function () { hideToast(); if (a.fn) a.fn(); });
+                wrap.appendChild(b);
+            });
+            box.classList.add('open');
+            if (toastTimer) clearTimeout(toastTimer);
+            toastTimer = setTimeout(hideToast, 14000);
+        }
+        function hideToast(){ const box = $('toastBox'); if (box) box.classList.remove('open'); }
+
+        /* ---------- PDF dışa aktarma ---------- */
+        function openPdfDialog(){
+            const ov = $('pdfOverlay');
+            if (ov) ov.classList.add('open');
+        }
+        function closePdfDialog(){
+            const ov = $('pdfOverlay');
+            if (ov) ov.classList.remove('open');
+        }
+        $('btnPdf').addEventListener('click', openPdfDialog);
+        $('pdfStart').addEventListener('click', function () { closePdfDialog(); setTimeout(function () { window.print(); }, 120); });
+        $('pdfClose').addEventListener('click', closePdfDialog);
+        $('pdfOverlay').addEventListener('click', function (e) { if (e.target === $('pdfOverlay')) closePdfDialog(); });
+
         $('btnLoad').addEventListener('click', () => {
             const raw = localStorage.getItem(STORE_KEY);
-            if (!raw){ alert('Kayıtlı tasarım bulunamadı.'); return; }
+            if (!raw){ showToast('Kayıtlı tasarım bulunamadı.'); return; }
             try { applySettings(JSON.parse(raw)); }
-            catch (e) { alert('Kayıtlı tasarım bozuk görünüyor. Sıfırla ile temizleyebilirsin.'); return; }
-            alert('Yüklendi ✓');
+            catch (e) { showToast('Kayıtlı tasarım bozuk görünüyor. Sıfırla ile temizleyebilirsin.'); return; }
+            showToast('Yüklendi ✓');
         });
         $('btnReset').addEventListener('click', () => {
             if (confirm('Tüm değişiklikler sıfırlansın mı? Sayfa yenilenecek.')){ localStorage.removeItem(STORE_KEY); location.reload(); }
@@ -1594,6 +1678,10 @@
 
         /* ---------- Güncelleme notları ---------- */
         var BROSUR_NOTES = {
+            "2.4.4": [
+                "PDF dışa aktarma eklendi: Kaydet'e basınca PDF seçeneği çıkıyor, ayrıca 📄 PDF butonu var.",
+                "Yazdırma çıktısı A4 yatay tek sayfaya tam oturuyor, renkler PDF'e aktarılıyor."
+            ],
             "2.4.3": [
                 "Hata önlemleri: dolu saklama alanı ve bozuk kayıtlarda artık anlaşılır uyarı çıkıyor."
             ],
@@ -1661,7 +1749,7 @@
                 box.appendChild(row);
             });
         }
-        $("btnArchiveNow").addEventListener("click", function(){ pushArchive("El ile"); alert("Arşive eklendi ✓"); });
+        $("btnArchiveNow").addEventListener("click", function(){ pushArchive("El ile"); showToast('Arşive eklendi ✓'); });
         $("archiveList").addEventListener("click", function (e) {
             var b = e.target.closest("[data-arc]");
             if (!b) return;
@@ -1675,11 +1763,11 @@
                 try { localStorage.setItem(ARCHIVE_KEY, JSON.stringify(a)); } catch (e) {}
                 renderArchive();
             } else {
-                if (!it || !it.data || typeof it.data.html !== 'string'){ alert('Bu arşiv kopyası bozuk görünüyor, yüklenemedi.'); return; }
+                if (!it || !it.data || typeof it.data.html !== 'string'){ showToast('Bu arşiv kopyası bozuk görünüyor, yüklenemedi.'); return; }
                 if (!confirm(it.date + " tarihli kopya yüklensin mi? Mevcut çalışman arşive alınır.")) return;
                 pushArchive("Geri yükleme öncesi");
-                try { applySettings(it.data); }
-                catch (e) { alert('Kopya yüklenirken hata oldu.'); }
+                try { applySettings(it.data); showToast('Arşiv kopyası yüklendi ✓'); }
+                catch (e) { showToast('Kopya yüklenirken hata oldu.'); }
             }
         });
 
